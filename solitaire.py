@@ -83,13 +83,23 @@ class Solitaire(arcade.Window):
         self.pile_mat_list: arcade.SpriteList = arcade.SpriteList()
 
         # This is the location for the talon and the stock
-        self.create_stock_talon()
+        # pile #0 is stock pile
+        # pile #1 is talon
 
-        # This is the location for the Tableau
-        self.create_tableau()
+        self.create_stock_talon()
+        # print(len(self.pile_mat_list))
 
         # This is the location for the Foundation
+        # pile #2-5 is foundation
         self.create_foundation()
+        # print(len(self.pile_mat_list))
+
+        # This is the location for the Tableau
+        # pile #6-12 is tableau
+        self.create_tableau()
+        # print(len(self.pile_mat_list))
+
+
 
         # Sprite list.
         self.card_list = arcade.SpriteList()
@@ -103,6 +113,10 @@ class Solitaire(arcade.Window):
         pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
         pile.position = LEFT_X + X_SPACING, TOP_Y
         self.pile_mat_list.append(pile)
+
+
+
+
 
     def create_tableau(self):
         for i in range(7):
@@ -186,6 +200,7 @@ class Solitaire(arcade.Window):
 
         # shows that no card is held
         self.held_cards = []
+
 
 def main():
     """ Main function """
