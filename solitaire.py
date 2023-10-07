@@ -117,25 +117,51 @@ class Solitaire(arcade.Window):
         # Clear the screen
         self.clear()
 
-        # Draw the mats the cards go on to
+        # Draw the mats the cards go on top
         self.pile_mat_list.draw()
 
         # Draw the cards
         self.card_list.draw()
 
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        """ Called when the user presses a mouse button. """
-        pass
+    def pull_to_top(self, card: arcade.Sprite):
+        # remove and append to the end
+        self.card_list.remove(card)
+        self.card_list.append(card)
 
-    def on_mouse_release(self, x: float, y: float, button: int,
-                         modifiers: int):
-        """ Called when the user presses a mouse button. """
-        pass
+    def on_mouse_press(self, x, y, button, key_modifiers):
+        """ Called when User presses the mouse button """
+        # retrieve card that user clicked
+        cards = arcade.get_sprites_at_point((x, y), self.card_list)
+
+        # checks if a card is clicked
+        if len(cards) > 0:
+            # gets the very top card
+            primary_card = cards[-1]
+
+            # All other cases, grab the face-up card we are clicking on
+            self.held_cards = [primary_card]
+            # Saves the position
+            self.held_cards_original_position = [self.held_cards[0].position]
+            # Put on top in drawing order
+            self.pull_to_top(self.held_cards[0])
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
-        """ User moves mouse """
-        pass
+        """ User moves mouse and drags the selected/held card """
 
+        # If a card is clicked, then move it along the mouse
+        for card in self.held_cards:
+            card.center_x += dx
+            card.center_y += dy
+
+    def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
+        """ Called when user releases the mouse button """
+
+        # If user releases, drop card
+        if len(self.held_cards) == 0:
+            return
+
+        # shows that no card is held
+        self.held_cards = []
 
 def main():
     """ Main function """
