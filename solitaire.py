@@ -1,4 +1,5 @@
 import arcade
+import random # for shuffling cards
 
 from card import Card
 
@@ -82,35 +83,58 @@ class Solitaire(arcade.Window):
         self.pile_mat_list: arcade.SpriteList = arcade.SpriteList()
 
         # This is the location for the talon and the stock
+        self.create_stock_talon()
+
+        # This is the location for the Tableau
+        self.create_tableau()
+
+        # This is the location for the Foundation
+        self.create_foundation()
+
+        # Sprite list.
+        self.card_list = arcade.SpriteList()
+
+        self.shuffle_cards()  # Shuffle the cards when setting up the game.
+
+    def create_stock_talon(self):
         pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
         pile.position = LEFT_X, TOP_Y
         self.pile_mat_list.append(pile)
-
         pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
         pile.position = LEFT_X + X_SPACING, TOP_Y
         self.pile_mat_list.append(pile)
 
-        # This is the location for the Tableau
+    def create_tableau(self):
         for i in range(7):
             pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
             pile.position = MIDDLE_X + i * X_SPACING, MIDDLE_Y
             self.pile_mat_list.append(pile)
 
-        # This is the location for the Foundation
+    def create_foundation(self):
         for i in range(4):
             pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
             pile.position = RIGHT_X - i * X_SPACING, TOP_Y
             self.pile_mat_list.append(pile)
 
-        # Sprite list.
-        self.card_list = arcade.SpriteList()
+    def shuffle_cards(self):
+        """ Shuffle the card list. """
+        # Create a new list for shuffling cards
+        shuffled_card_list = []
 
-        # Create every card
+        # Create card objects and add them to the shuffled list
         for card_suit in CARD_SUITS:
             for card_value in CARD_VALUES:
                 card = Card(card_suit, card_value, CARD_SCALE)
                 card.position = LEFT_X, TOP_Y
-                self.card_list.append(card)
+                shuffled_card_list.append(card)
+
+        # Shuffle the cards in the shuffled list
+        random.shuffle(shuffled_card_list)
+
+        # Clear the existing card list and add shuffled cards to it
+        self.card_list.clear()
+        self.card_list.extend(shuffled_card_list)
+
 
     def on_draw(self):
         """ Render the screen. """
