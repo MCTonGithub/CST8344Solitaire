@@ -68,6 +68,8 @@ class Solitaire(arcade.Window):
         # Stock list with all the mats tha cards lay on.
         self.pile_mat_list = None
 
+
+
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
 
@@ -82,37 +84,44 @@ class Solitaire(arcade.Window):
         # Sprite list with all the mats tha cards lay on.
         self.pile_mat_list: arcade.SpriteList = arcade.SpriteList()
 
-        # Sprite list with all piles for dropping cards.
-
-        self.dropping_pile_list: arcade.SpriteList = arcade.SpriteList()
+        # Create card sprite lists for tableau , stock, foundation and talon
+        self.tableau_pile_lists = [arcade.SpriteList() for _ in range(7)]  # One list for each tableau pile
+        self.foundation_pile_lists = arcade.SpriteList()
+        self.stock_pile_list = arcade.SpriteList()
+        self.talon_pile_list = arcade.SpriteList()
 
         # This is the location for the talon and the stock
         # pile #0 is stock pile
         # pile #1 is talon
 
-        self.create_stock_talon()
+        self.create_stock_talon_mat()
         # print(len(self.pile_mat_list))
 
         # This is the location for the Foundation
         # pile #2-5 is foundation
-        self.create_foundation()
-        # print(len(self.pile_mat_list))
+        self.create_foundation_mat()
 
         # This is the location for the Tableau
         # pile #6-12 is tableau
-        self.create_tableau()
-        # print(len(self.pile_mat_list))
-
-
+        self.create_tableau_mat()
 
         # Sprite list.
         self.card_list = arcade.SpriteList()
 
         self.shuffle_cards()  # Shuffle the cards when setting up the game.
 
+        CARD_OFFSET = 30
+        # Deal cards to tableau piles
+        for tableau_index in range(7):
+            for _ in range(tableau_index + 1):
+                card = self.card_list.pop()
+                card.position = self.pile_mat_list[tableau_index + 6].position
+                card.center_y -= (len(self.tableau_pile_lists[tableau_index]) * CARD_OFFSET)
+                self.tableau_pile_lists[tableau_index].append(card)
 
+        self.stock_pile_list = self.card_list
 
-    def create_stock_talon(self):
+    def create_stock_talon_mat(self):
         pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
         pile.position = LEFT_X, TOP_Y
         self.pile_mat_list.append(pile)
@@ -124,19 +133,19 @@ class Solitaire(arcade.Window):
 
 
 
-    def create_tableau(self):
+    def create_tableau_mat(self):
         for i in range(7):
             pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
             pile.position = MIDDLE_X + i * X_SPACING, MIDDLE_Y
             self.pile_mat_list.append(pile)
-            self.dropping_pile_list.append(pile)
+            # self.dropping_pile_list.append(pile)
 
-    def create_foundation(self):
+    def create_foundation_mat(self):
         for i in range(4):
             pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
             pile.position = RIGHT_X - i * X_SPACING, TOP_Y
             self.pile_mat_list.append(pile)
-            self.dropping_pile_list.append(pile)
+            # self.dropping_pile_list.append(pile)
 
     def shuffle_cards(self):
         """ Shuffle the card list. """
@@ -166,7 +175,15 @@ class Solitaire(arcade.Window):
         # Draw the mats the cards go on top
         self.pile_mat_list.draw()
 
-        # Draw the cards
+        # Draw the cards in tableau piles
+
+        for pile in self.tableau_pile_lists:
+            for card in pile:
+                card.draw()
+
+
+
+        # Draw the cards in the stock pile
         self.card_list.draw()
 
     def pull_to_top(self, card: arcade.Sprite):
@@ -180,7 +197,31 @@ class Solitaire(arcade.Window):
     def on_mouse_press(self, x, y, button, key_modifiers):
         """ Called when User presses the mouse button """
         #get cards that were clicked
-        cards = arcade.get_sprites_at_point((x, y), self.card_list)
+        # cards = arcade.get_sprites_at_point((x, y), self.card_list)
+
+
+        # List to store all cards that were clicked
+        cards = []
+
+        # Check for clicks in all tableau piles, foundation piles, stock pile  and talon pile
+
+        for pile in self.tableau_pile_lists:
+            if pile:
+                cards.extend(arcade.get_sprites_at_point((x, y), pile))
+
+
+        # # Check for clicks in the stock pile
+        if self.stock_pile_list:
+            cards.extend(arcade.get_sprites_at_point((x, y), self.stock_pile_list))
+
+        # Check for clicks in the talon pile
+        if self.talon_pile_list:
+            cards.extend(arcade.get_sprites_at_point((x, y), self.talon_pile_list))
+
+        # Check for clicks in the foundation piles
+        for pile in self.foundation_pile_lists:
+            if pile:
+                cards.extend(arcade.get_sprites_at_point((x, y), pile))
 
         # If cards are found
         if cards:
@@ -218,10 +259,11 @@ class Solitaire(arcade.Window):
         # Check if there is an overlapping sprite with the released sprite
 
         #right now, it only check piles. in the future, it should check the top cards of the piles.
-        overlapping_sprite = self.get_overlapping_sprite(self.held_cards[0], self.dropping_pile_list)
+        overlapping_sprite = self.get_overlapping_sprite(self.held_cards[0], self.pile_mat_list)
 
         if overlapping_sprite:
             print(f"Overlapping sprite found: {overlapping_sprite}")
+            self.snap_pile(self.held_cards[0], overlapping_sprite)
         else:
             print("No overlapping sprite found")
 
@@ -288,6 +330,37 @@ class Solitaire(arcade.Window):
                     return sprite2  # Return the overlapping sprite if found
 
         return None  # Return None if no overlap is found
+
+    # Snap the card to the pile
+    def snap_pile(self, card, pile):
+        """
+        Align the card with the pile.
+
+        Args:
+            card (arcade.Sprite): The card sprite to align.
+            pile (arcade.Sprite): The pile sprite to align with.
+
+        """
+        # Check if pile is a foundation pile (index 2-5 in pile_mat_list)
+        if pile in self.pile_mat_list[2:6]:
+            # Center align card with pile
+            card.center_x = pile.center_x
+            card.center_y = pile.center_y
+        # Check if pile is a tableau pile (index 6-12 in pile_mat_list)
+        elif pile in self.pile_mat_list[6:13]:
+            # Find the index of the tableau pile
+            tableau_index = self.pile_mat_list.index(pile) - 6
+            # Calculate the horizontal offset based on the number of cards in the tableau pile
+            card_offset = 30 * len(self.tableau_pile_lists[tableau_index])
+            # Vertically align card with pile's top card and apply the offset
+            card.center_x = pile.center_x
+            card.center_y = pile.center_y
+            # Add the card to the tableau pile list
+            self.tableau_pile_lists[tableau_index].append(card)
+        else:
+            # Handle other cases if needed
+            pass
+
 
 def main():
     """ Main function """
