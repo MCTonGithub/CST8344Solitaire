@@ -263,9 +263,13 @@ class Solitaire(arcade.Window):
 
         if overlapping_sprite:
             print(f"Overlapping sprite found: {overlapping_sprite}")
-            self.snap_pile(self.held_cards[0], overlapping_sprite)
+            if self.is_valid_move(self.held_cards[0], overlapping_sprite):
+                self.snap_pile(self.held_cards[0], overlapping_sprite)
         else:
             print("No overlapping sprite found")
+
+            # Restore the card to its original position
+            self.held_cards[0].position = self.held_cards_original_position[0]
 
         # shows that no card is held
         self.held_cards = []
@@ -312,7 +316,7 @@ class Solitaire(arcade.Window):
         return False
 
 
-    # gets the overlapping sprite (assumming that only one sprite is overlapping over 50%)
+    # gets the overlapping sprite (assumming that only one sprite is overlapping over 50%,)
     def get_overlapping_sprite(self, sprite1, sprite_list):
         """
         Get the sprite from sprite_list that overlaps with sprite1, if one exists.
@@ -361,6 +365,42 @@ class Solitaire(arcade.Window):
             # Handle other cases if needed
             pass
 
+    def is_valid_move(self, source_pile, target_pile):
+        """
+        Check if a valid move can be made.
+
+        Args:
+            source_pile (list): The source pile from which to move cards.
+            target_pile (list): The target pile to which cards will be moved.
+
+        Returns:
+            bool: True if the move is valid, False otherwise.
+        """
+        # If the source pile is empty, the move is invalid
+        if not source_pile:
+            return False
+
+        if target_pile is None:
+            return False
+
+        # # Get the top cards from the source and target piles
+        # source_top_card = source_pile[-1]  # Assuming the card list in the source pile is ordered
+        # target_top_card = None if not target_pile else target_pile[-1]
+        #
+        # # Check if the move is valid based on game rules
+        # # The following is an example rule that you can modify as needed
+        # if target_top_card is None:
+        #     # If the target pile is empty, only Kings (K) can be moved to an empty pile
+        #     if source_top_card.value == "K":
+        #         return True
+        # else:
+        #     # Otherwise, check if card colors and values match, e.g., hearts and diamonds, spades and clubs
+        #     if (source_top_card.color != target_top_card.color and
+        #             source_top_card.value == str(int(target_top_card.value) - 1)):
+        #         return True
+
+        # Move is invalid
+        return True
 
 def main():
     """ Main function """
