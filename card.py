@@ -26,7 +26,6 @@ class Card(arcade.Sprite):
 
     # card face down
     def face_down(self):
-
         self.texture = arcade.load_texture(FACE_DOWN_IMAGE)
         self.is_face_up = False
 
