@@ -235,6 +235,18 @@ class Solitaire(arcade.Window):
             # Bring the card to the top of the rendering order
             self.pull_to_top(self.held_cards[0])
 
+            # If cards are found, flip cards. --Jingfei
+        if len(cards) > 0:
+            primary_card = cards[-1]
+
+            if primary_card.is_face_up:
+                primary_card.face_down()
+            else:
+                primary_card.face_up()
+
+            # get cards that were clicked
+        cards = arcade.get_sprites_at_point((x, y), self.card_list)
+
 
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
