@@ -1,5 +1,6 @@
 import arcade
 
+
 FACE_DOWN_IMAGE = ":resources:images/cards/cardBack_red2.png"
 
 
