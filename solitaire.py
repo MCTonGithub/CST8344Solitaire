@@ -125,10 +125,10 @@ class Solitaire(arcade.Window):
         pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
         pile.position = LEFT_X, TOP_Y
         self.pile_mat_list.append(pile)
- 
 
-
-
+        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
+        pile.position = LEFT_X + X_SPACING, TOP_Y
+        self.pile_mat_list.append(pile)
 
 
     def create_tableau_mat(self):
