@@ -115,7 +115,7 @@ class Solitaire(arcade.Window):
         for tableau_index in range(7):
             for _ in range(tableau_index + 1):
                 card = self.card_list.pop()
-                card.position = self.pile_mat_list[tableau_index + 5].position #change to 5
+                card.position = self.pile_mat_list[tableau_index + 6].position
                 card.center_y -= (len(self.tableau_pile_lists[tableau_index]) * CARD_OFFSET)
                 self.tableau_pile_lists[tableau_index].append(card)
 
