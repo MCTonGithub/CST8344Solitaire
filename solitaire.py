@@ -206,7 +206,27 @@ class Solitaire(arcade.Window):
             # Check which pile the card is from
             pile_index = self.get_pile_for_card(primary_card)
 
-            if primary_card.is_face_down():
+            # If we click on the stock, 3 cards move to the talon pile
+            if pile_index == STOCK_PILE:
+            # Flip the 3 new cards
+                for i in range(3):
+                    # If there is no more cards, stop
+                    if len(self.piles[STOCK_PILE]) == 0:
+                        break
+                    # Go back to the top of the stock pile
+                    card = self.piles[STOCK_PILE][-1]
+                    # Now flip that card
+                    card.face_up()
+                    # Position of the talon
+                    card.position = self.pile_mat_list[TALON_PILE].position
+                    # Remove the card from the stock
+                    self.piles[STOCK_PILE].remove(card)
+                    # Move the card to the talon
+                    self.piles[TALON_PILE].append(card)
+                    # Put the new cards at the top of the pile
+                    self.pull_to_top(card)
+
+            elif primary_card.is_face_down():
                 primary_card.face_up()
 
             else:
@@ -225,58 +245,24 @@ class Solitaire(arcade.Window):
                     self.held_cards_original_position.append(card.position)
                     self.pull_to_top(card)
 
-            # If we click on the stock, 3 cards move to the talon pile
-#            if pile_index == STOCK_PILE:
-                # Flip the 3 new cards
-#                for i in range(3):
-                    # If there is no more cards, stop
-#                    if len(self.piles[STOCK_PILE]) == 0:
-#                        break
-                    # Go back to the top of the stock pile
-#                    card = self.piles[STOCK_PILE][-1]
-                    # Now flip that card
-#                    card.face_up()
-                    # Position of the talon
-#                    card.position = self.pile_mat_list[TALON_PILE].position
-                    # Remove the card from the stock
-#                    self.piles[STOCK_PILE].remove(card)
-                    # Move the card to the talon
-#                    self.piles[TALON_PILE].append(card)
-                    # Put the new cards at the top of the pile
-#                    self.pull_to_top(card)
-
-#            elif primary_card.is_face_down:
-                # Is the card face down in one of the pile of the tableau, flip it
-#                primary_card.face_up()
-#            else:
-                # all other cases, grab face-up card
-#                self.held_cards = [primary_card]
-                # SAve
-#                self.held_cards_original_position = [self.held_cards[0].position]
-                # Put the card back at top of Stock
-#                self.pull_to_top(self.held_cards[0])
-
-
-
         # If cards are not found
-#        else:
+        else:
 
             # You didn't click on a card
-#            mats = arcade.get_sprites_at_point((x, y), self.pile_mat_list)
+            mats = arcade.get_sprites_at_point((x, y), self.pile_mat_list)
 
-#            if len(mats) > 0:
-#                mat = mats[0]
-#                mat_index = self.pile_mat_list.index(mat)
+            if len(mats) > 0:
+                mat = mats[0]
+                mat_index = self.pile_mat_list.index(mat)
 
-#                if mat_index == STOCK_PILE and len(self.piles[STOCK_PILE]) == 0:
+                if mat_index == STOCK_PILE and len(self.piles[STOCK_PILE]) == 0:
                     # Flip stock pile so we can restart
-#                    temp_list = self.piles[STOCK_PILE].copy()
-#                    for card in reversed(temp_list):
-#                        card.face_down()
-#                        self.piles[TALON_PILE].remove(card)
-#                        self.piles[STOCK_PILE].append(card)
-#                        card.position = self.pile_mat_list[STOCK_PILE].position
-
+                    temp_list = self.piles[STOCK_PILE].copy()
+                    for card in reversed(temp_list):
+                        card.face_down()
+                        self.piles[TALON_PILE].remove(card)
+                        self.piles[STOCK_PILE].append(card)
+                        card.position = self.pile_mat_list[STOCK_PILE].position
 
     def remove_card_from_pile(self, card):
         # remove a card from the pile that it was in
