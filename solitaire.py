@@ -127,13 +127,10 @@ class Solitaire(arcade.Window):
             pile.position = RIGHT_X - i * X_SPACING, TOP_Y
             self.pile_mat_list.append(pile)
 
-        # Array for the piles
-        self.card_list = arcade.SpriteList()
-
         # --- Create, shuffle, and deal the cards
 
         # Sprite list.
-#        self.card_list = arcade.SpriteList()
+        self.card_list = arcade.SpriteList()
 
         # Create every card
         for card_suit in CARD_SUITS:
@@ -168,9 +165,8 @@ class Solitaire(arcade.Window):
                 self.pull_to_top(card)
 
         # Flip top of the card in the foundation pile
-#        for i in range (TABLEAU_PILE_1, TABLEAU_PILE_7 + 1):
-#            self.piles[i][-1].face_up()
-
+        for i in range(TABLEAU_PILE_1, TABLEAU_PILE_7 + 1):
+            self.piles[i][-1].face_up()
 
     def on_draw(self):
         """ Render the screen. """
@@ -205,16 +201,29 @@ class Solitaire(arcade.Window):
 
             # Select the top card
             primary_card = cards[-1]
+            assert isinstance(primary_card, Card)
+
             # Check which pile the card is from
             pile_index = self.get_pile_for_card(primary_card)
 
-            # All other cases, grab the face-up card
-            self.held_cards = [primary_card]
-            #Save the position
-            self.held_cards_original_position = [self.held_cards[0].position]
-            # Put on top of Stock
-            self.pull_to_top(self.held_cards[0])
-#            assert isinstance(primary_card, Card)
+            if primary_card.is_face_down():
+                primary_card.face_up()
+
+            else:
+                # All other cases, grab the face-up card
+                self.held_cards = [primary_card]
+                #Save the position
+                self.held_cards_original_position = [self.held_cards[0].position]
+                # Put on top of Stock
+                self.pull_to_top(self.held_cards[0])
+
+                # If stack, grab rest of pile too
+                card_index = self.piles[pile_index].index(primary_card)
+                for i in range(card_index + 1, len(self.piles[pile_index])):
+                    card = self.piles[pile_index][i]
+                    self.held_cards.append(card)
+                    self.held_cards_original_position.append(card.position)
+                    self.pull_to_top(card)
 
             # If we click on the stock, 3 cards move to the talon pile
 #            if pile_index == STOCK_PILE:
@@ -247,13 +256,7 @@ class Solitaire(arcade.Window):
                 # Put the card back at top of Stock
 #                self.pull_to_top(self.held_cards[0])
 
-            # If stack, grab rest of pile too
-            card_index = self.piles[pile_index].index(primary_card)
-            for i in range(card_index + 1, len(self.piles[pile_index])):
-                card = self.piles[pile_index][i]
-                self.held_cards.append(card)
-                self.held_cards_original_position.append(card.position)
-                self.pull_to_top(card)
+
 
         # If cards are not found
 #        else:
@@ -365,6 +368,12 @@ class Solitaire(arcade.Window):
         for card in self.held_cards:
             card.center_x += dx
             card.center_y += dy
+
+    def on_key_press(self, symbol: int, modifiers: int):
+        """ User presses key """
+        if symbol == arcade.key.R:
+            # Restart
+            self.setup()
 
 
 #    def check_overlap(self, sprite1, sprite2):
