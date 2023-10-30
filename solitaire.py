@@ -197,6 +197,9 @@ class Solitaire(arcade.Window):
         # get cards that were clicked
         cards = arcade.get_sprites_at_point((x, y), self.card_list)
 
+        # Get mats that were clicked
+        mats = arcade.get_sprites_at_point((x, y), self.pile_mat_list)
+
         # If cards are found
         if len(cards) > 0:
 
@@ -207,25 +210,42 @@ class Solitaire(arcade.Window):
             # Check which pile the card is from
             pile_index = self.get_pile_for_card(primary_card)
 
-            # If we click on the stock, 3 cards move to the talon pile
+            # standard rule
             if pile_index == STOCK_PILE:
-                # Flip the 3 new cards
-                for i in range(3):
-                    # If there is no more cards, stop
-                    if len(self.piles[STOCK_PILE]) == 0:
-                        break
-                    # Go back to the top of the stock pile
+                # Check if there are cards in the Stock Pile
+                if len(self.piles[STOCK_PILE]) > 0:
+                    # Flip the top card from the Stock Pile to the Talon Pile
                     card = self.piles[STOCK_PILE][-1]
-                    # Now flip that card
                     card.face_up()
-                    # Position of the talon
                     card.position = self.pile_mat_list[TALON_PILE].position
-                    # Remove the card from the stock
                     self.piles[STOCK_PILE].remove(card)
-                    # Move the card to the talon
                     self.piles[TALON_PILE].append(card)
-                    # Put the new cards at the top of the pile
                     self.pull_to_top(card)
+                    print(len(self.piles[STOCK_PILE]) )
+
+
+
+
+            # # Vegas rule
+            # # If we click on the stock, 3 cards move to the talon pile
+            # if pile_index == STOCK_PILE:
+            #     # Flip the 3 new cards
+            #     for i in range(3):
+            #         # If there is no more cards, stop
+            #         if len(self.piles[STOCK_PILE]) == 0:
+            #             break
+            #         # Go back to the top of the stock pile
+            #         card = self.piles[STOCK_PILE][-1]
+            #         # Now flip that card
+            #         card.face_up()
+            #         # Position of the talon
+            #         card.position = self.pile_mat_list[TALON_PILE].position
+            #         # Remove the card from the stock
+            #         self.piles[STOCK_PILE].remove(card)
+            #         # Move the card to the talon
+            #         self.piles[TALON_PILE].append(card)
+            #         # Put the new cards at the top of the pile
+            #         self.pull_to_top(card)
 
             elif primary_card.is_face_down():
                 primary_card.face_up()
@@ -245,6 +265,19 @@ class Solitaire(arcade.Window):
                     self.held_cards.append(card)
                     self.held_cards_original_position.append(card.position)
                     self.pull_to_top(card)
+
+        # If mats are found and Stock Pile is empty
+        elif len(mats) > 0 and len(self.piles[STOCK_PILE]) == 0:
+            mat = mats[0]
+            mat_index = self.pile_mat_list.index(mat)
+
+            if mat_index == STOCK_PILE:
+                # When Stock Pile is empty, move all cards from Talon Pile back to Stock Pile
+                while self.piles[TALON_PILE]:
+                    card = self.piles[TALON_PILE].pop()
+                    card.face_down()
+                    card.position = self.pile_mat_list[STOCK_PILE].position
+                    self.piles[STOCK_PILE].append(card)
 
         # If cards are not found
         else:
