@@ -38,3 +38,12 @@ class Card(arcade.Sprite):
             return "Red"
         else:
             return "Black"
+
+    def get_value(self):
+        """ Get the numerical value of the card. A is 1, J is 11, Q is 12, and K is 13. """
+        if self.value == "A":
+            return 1
+        elif self.value in ("J", "Q", "K"):
+            return 11 if self.value == "J" else 12 if self.value == "Q" else 13
+        else:
+            return int(self.value)

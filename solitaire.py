@@ -1,7 +1,7 @@
 from typing import Optional
 
 import arcade
-import random # for shuffling cards
+import random  # for shuffling cards
 
 from card import Card
 
@@ -53,7 +53,7 @@ CARD_SUITS = ["Clubs", "Hearts", "Spades", "Diamonds"]
 # If we fan out cards stacked on each other, how far apart to fan them?
 CARD_VERTICAL_OFFSET = CARD_HEIGHT * CARD_SCALE * 0.3
 
-#Constant for piles
+# Constant for piles
 PILE_COUNT = 13
 STOCK_PILE = 0
 TALON_PILE = 1
@@ -69,13 +69,14 @@ FOUNDATION_PILE_2 = 10
 FOUNDATION_PILE_3 = 11
 FOUNDATION_PILE_4 = 12
 
+
 class Solitaire(arcade.Window):
 
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
         # Pile list
-        self.card_list = None #: Optional[arcade.SpriteList]
+        self.card_list = None  #: Optional[arcade.SpriteList]
 
         arcade.set_background_color(arcade.color.AO)
 
@@ -185,10 +186,10 @@ class Solitaire(arcade.Window):
         self.card_list.remove(card)
         self.card_list.append(card)
 
-#    def on_key_press(self, symbol: int, modifiers: int):
-        # When someone select a key from keyboard
-#        if symbol == arcade.key.R:
-#            self.setup()
+    #    def on_key_press(self, symbol: int, modifiers: int):
+    # When someone select a key from keyboard
+    #        if symbol == arcade.key.R:
+    #            self.setup()
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         """ Called when User presses the mouse button """
@@ -208,7 +209,7 @@ class Solitaire(arcade.Window):
 
             # If we click on the stock, 3 cards move to the talon pile
             if pile_index == STOCK_PILE:
-            # Flip the 3 new cards
+                # Flip the 3 new cards
                 for i in range(3):
                     # If there is no more cards, stop
                     if len(self.piles[STOCK_PILE]) == 0:
@@ -232,7 +233,7 @@ class Solitaire(arcade.Window):
             else:
                 # All other cases, grab the face-up card
                 self.held_cards = [primary_card]
-                #Save the position
+                # Save the position
                 self.held_cards_original_position = [self.held_cards[0].position]
                 # Put on top of Stock
                 self.pull_to_top(self.held_cards[0])
@@ -290,9 +291,8 @@ class Solitaire(arcade.Window):
             return
 
         # Find the closest pile, in case we are in contact with more than one
-        if self.held_cards[0]:
-            pile, distance = arcade.get_closest_sprite(self.held_cards[0], self.pile_mat_list)
-            reset_position = True
+        pile, distance = arcade.get_closest_sprite(self.held_cards[0], self.pile_mat_list)
+        reset_position = True
 
         # See if we are in contact with the closest pile
         if arcade.check_for_collision(self.held_cards[0], pile):
@@ -305,48 +305,61 @@ class Solitaire(arcade.Window):
                 # If so, who cares. We'll just reset our position.
                 pass
 
-            # Is it on a middle play pile?
+            # move to tableau pile
             elif TABLEAU_PILE_1 <= pile_index <= TABLEAU_PILE_7:
-                # Are there already cards there?
+                # if pile is not empty
                 if len(self.piles[pile_index]) > 0:
-                    # Move cards to proper position
                     top_card = self.piles[pile_index][-1]
-                    for i, dropped_card in enumerate(self.held_cards):
-                        dropped_card.position = top_card.center_x, \
-                                                top_card.center_y - CARD_VERTICAL_OFFSET * (i + 1)
+                    primary_color = self.held_cards[0].get_color()
+                    top_color = top_card.get_color()
+                    primary_value = int(self.held_cards[0].get_value())
+                    top_value = int(top_card.get_value())
+
+                    #if the primary card is the opposite color of the top card and the primary card is one less than the top card
+                    if primary_color != top_color and primary_value == top_value - 1:
+                        for i, dropped_card in enumerate(self.held_cards):
+                            dropped_card.position = top_card.center_x, top_card.center_y - CARD_VERTICAL_OFFSET * (
+                                    i + 1)
+                        # Cards are in the right position, but we need to move them to the right list
+                        for card in self.held_cards:
+                            self.move_card_to_new_pile(card, pile_index)
+
+                        # Success, don't reset position of cards
+                        reset_position = False
+
                 else:
-                    # Are there no cards in the middle play pile?
-                    for i, dropped_card in enumerate(self.held_cards):
-                        # Move cards to proper position
-                        dropped_card.position = pile.center_x, \
-                                                pile.center_y - CARD_VERTICAL_OFFSET * i
+                    # If the target pile is empty and the prime card of held cards is a King (value is 13),
+                    # move it to the empty pile
+                    if self.held_cards[0].get_value() == 13:
+                        for i, dropped_card in enumerate(self.held_cards):
+                            dropped_card.position = pile.center_x, pile.center_y - CARD_VERTICAL_OFFSET * i
+                        for card in self.held_cards:
+                            self.move_card_to_new_pile(card, pile_index)
+                        reset_position = False
 
-                for card in self.held_cards:
-                    # Cards are in the right position, but we need to move them to the right list
-                    self.move_card_to_new_pile(card, pile_index)
 
-                # Success, don't reset position of cards
-                reset_position = False
+
+
+
 
             # Release on top play pile? And only one card held?
             elif FOUNDATION_PILE_1 <= pile_index <= FOUNDATION_PILE_4 and len(self.held_cards) == 1:
                 # Move position of card to pile
                 self.held_cards[0].position = pile.position
-#                # Move card to card list
+                #                # Move card to card list
                 for card in self.held_cards:
                     self.move_card_to_new_pile(card, pile_index)
 
                 reset_position = False
 
         if reset_position:
-#            # Where-ever we were dropped, it wasn't valid. Reset the each card's position
-#            # to its original spot.
+            #            # Where-ever we were dropped, it wasn't valid. Reset the each card's position
+            #            # to its original spot.
             for pile_index, card in enumerate(self.held_cards):
                 card.position = self.held_cards_original_position[pile_index]
 
-#        # We are no longer holding cards
+        #        # We are no longer holding cards
         self.held_cards = []
-
 
     def on_mouse_motion(self, x: float, y: float, dx: int, dy: int):
         """ User moves mouse and drags the selected/held card """
@@ -363,8 +376,6 @@ class Solitaire(arcade.Window):
         if symbol == arcade.key.R:
             # Restart
             self.setup()
-
-
 
 
 def main():
