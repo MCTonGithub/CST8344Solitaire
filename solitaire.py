@@ -342,15 +342,39 @@ class Solitaire(arcade.Window):
 
 
 
-            # Release on top play pile? And only one card held?
+            # Move to foundation pile
             elif FOUNDATION_PILE_1 <= pile_index <= FOUNDATION_PILE_4 and len(self.held_cards) == 1:
-                # Move position of card to pile
-                self.held_cards[0].position = pile.position
-                #                # Move card to card list
-                for card in self.held_cards:
-                    self.move_card_to_new_pile(card, pile_index)
+                target_pile = self.piles[pile_index]
 
-                reset_position = False
+                if len(target_pile) == 0:
+                    # If the target pile is empty, only Ace (A) can be moved to an empty pile
+                    if self.held_cards[0].get_value() == 1:
+                        # Check if the card's suit matches the foundation pile's suit
+                        target_suit = target_pile[0].get_suit() if len(target_pile) > 0 else None
+                        held_suit = self.held_cards[0].get_suit()
+                        if target_suit is None or target_suit == held_suit:
+                            # Move the card to the foundation pile
+                            self.held_cards[0].position = pile.position
+                            for card in self.held_cards:
+                                self.move_card_to_new_pile(card, pile_index)
+                            reset_position = False
+                else:
+                    # If the target pile is not empty, check if the card's value is one greater than the top card's value
+                    top_card = target_pile[-1]
+                    primary_value = self.held_cards[0].get_value()
+                    top_value = top_card.get_value()
+                    if primary_value == top_value + 1:
+                        # Check if the card's suit matches the foundation pile's suit
+                        target_suit = top_card.get_suit()
+                        held_suit = self.held_cards[0].get_suit()
+                        if target_suit == held_suit:
+                            # Move the card to the foundation pile
+                            self.held_cards[0].position = pile.position
+                            for card in self.held_cards:
+                                self.move_card_to_new_pile(card, pile_index)
+                            reset_position = False
+
+
 
         if reset_position:
             #            # Where-ever we were dropped, it wasn't valid. Reset the each card's position

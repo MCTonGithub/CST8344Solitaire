@@ -47,3 +47,7 @@ class Card(arcade.Sprite):
             return 11 if self.value == "J" else 12 if self.value == "Q" else 13
         else:
             return int(self.value)
+
+     # get suit
+    def get_suit(self):
+        return self.suit
