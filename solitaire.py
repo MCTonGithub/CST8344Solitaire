@@ -5,19 +5,19 @@ import random  # for shuffling cards
 
 from card import Card
 
-SCREEN_WIDTH = 1050
-SCREEN_HEIGHT = 750
+WINDOW_WIDTH = 1024
+WINDOW_HEIGHT = int(WINDOW_WIDTH * 0.75)
 SCREEN_TITLE = "Solitaire"
 
 # sizing
-CARD_SCALE = 0.5
+CARD_SCALE = 0.55
 
 # size of cards
-CARD_WIDTH = 135 * CARD_SCALE
-CARD_HEIGHT = 180 * CARD_SCALE
+CARD_WIDTH = int(135 * CARD_SCALE)
+CARD_HEIGHT = int(180 * CARD_SCALE)
 
 # size of mat
-MAT_PERCENT_OVERSIZE = 1.25
+MAT_PERCENT_OVERSIZE = 1.23
 MAT_HEIGHT = int(CARD_HEIGHT * MAT_PERCENT_OVERSIZE)
 MAT_WIDTH = int(CARD_WIDTH * MAT_PERCENT_OVERSIZE)
 
@@ -26,7 +26,7 @@ VERTICAL_MARGIN_PERCENT = 0.10
 HORIZONTAL_MARGIN_PERCENT = 0.10
 
 # Top of the page but on the Y axe
-TOP_Y = SCREEN_HEIGHT - MAT_HEIGHT / 2 - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
+TOP_Y = WINDOW_HEIGHT - MAT_HEIGHT / 2 - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
 
 # Middle of the page but on the Y axe
 MIDDLE_Y = TOP_Y - MAT_HEIGHT - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
@@ -38,10 +38,10 @@ BOTTOM_Y = MAT_HEIGHT / 2 + MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
 LEFT_X = MAT_WIDTH / 2 + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
 
 # Middle of the page but on the X axe
-MIDDLE_X = SCREEN_WIDTH / 4
+MIDDLE_X = WINDOW_WIDTH / 4
 
 # Right of the page but on the X axe
-RIGHT_X = SCREEN_WIDTH - MAT_WIDTH / 2 - MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
+RIGHT_X = WINDOW_WIDTH - MAT_WIDTH / 2 - MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
 
 # How far apart each pile goes
 X_SPACING = MAT_WIDTH + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
@@ -51,7 +51,7 @@ CARD_VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 CARD_SUITS = ["Clubs", "Hearts", "Spades", "Diamonds"]
 
 # If we fan out cards stacked on each other, how far apart to fan them?
-CARD_VERTICAL_OFFSET = CARD_HEIGHT * CARD_SCALE * 0.3
+CARD_VERTICAL_OFFSET = int(CARD_HEIGHT * CARD_SCALE * 0.4)
 
 # Constant for piles
 PILE_COUNT = 13
@@ -73,7 +73,7 @@ FOUNDATION_PILE_4 = 12
 class Solitaire(arcade.Window):
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_TITLE)
 
         # Pile list
         self.card_list = None  #: Optional[arcade.SpriteList]
