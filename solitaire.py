@@ -290,8 +290,9 @@ class Solitaire(arcade.Window):
             return
 
         # Find the closest pile, in case we are in contact with more than one
-        pile, distance = arcade.get_closest_sprite(self.held_cards[0], self.pile_mat_list)
-        reset_position = True
+        if self.held_cards[0]:
+            pile, distance = arcade.get_closest_sprite(self.held_cards[0], self.pile_mat_list)
+            reset_position = True
 
         # See if we are in contact with the closest pile
         if arcade.check_for_collision(self.held_cards[0], pile):
@@ -351,9 +352,11 @@ class Solitaire(arcade.Window):
         """ User moves mouse and drags the selected/held card """
 
         # If a card is clicked, then move it along the mouse
-        for card in self.held_cards:
-            card.center_x += dx
-            card.center_y += dy
+        # if self.held_cards != [0]:
+        if self.held_cards != [0]:
+            for card in self.held_cards:
+                card.center_x += dx
+                card.center_y += dy
 
     def on_key_press(self, symbol: int, modifiers: int):
         """ User presses key """
@@ -362,132 +365,7 @@ class Solitaire(arcade.Window):
             self.setup()
 
 
-#    def check_overlap(self, sprite1, sprite2):
 
-#        Check if two sprites overlap with an overlap ratio greater than 50%.
-#        Args:
-#            sprite1 (arcade.Sprite): The first sprite.
-
-#            sprite2 (arcade.Sprite): The second sprite.
-
-#        Returns:
-#            bool: True if the overlap ratio is greater than 50%, False otherwise.
-
-#        # Get the bounding box of the first sprite
-#        left1 = sprite1.left
-#        right1 = sprite1.right
-#        top1 = sprite1.top
-#        bottom1 = sprite1.bottom
-
-#        # Get the bounding box of the second sprite
-#        left2 = sprite2.left
-#        right2 = sprite2.right
-#        top2 = sprite2.top
-#        bottom2 = sprite2.bottom
-
-#        # Calculate the overlap area
-#        overlap_width = max(0, min(right1, right2) - max(left1, left2))
-#        overlap_height = max(0, min(top1, top2) - max(bottom1, bottom2))
-#        overlap_area = overlap_width * overlap_height
-
-       # # Calculate the area of the smaller sprite
-      #  min_area = min(sprite1.width * sprite1.height, sprite2.width * sprite2.height)
-
-     #   # Calculate the overlap ratio
-    #    overlap_ratio = overlap_area / min_area
-
-   #     # Check if overlap ratio is greater than 0.5 (50%)
-  #      if overlap_ratio > 0.5:
- #           return True
-
-#        return False
-
-#
-    # gets the overlapping sprite (assumming that only one sprite is overlapping over 50%,)
-    #def get_overlapping_sprite(self, sprite1, sprite_list):
-     #
-      #  Get the sprite from sprite_list that overlaps with sprite1, if one exists.
-
-       # Args:
-        #    sprite1 (arcade.Sprite): The sprite to check for overlap.
-         #   sprite_list (arcade.SpriteList): The list of sprites to check against.
-
-        #Returns:
-         #   arcade.Sprite or None: The overlapping sprite, or None if no overlap is found.
-        #"""
-        #for sprite2 in sprite_list:
-         #   if sprite2 != sprite1:
-          #      if self.check_overlap(sprite1, sprite2):
-           #         return sprite2  # Return the overlapping sprite if found
-
-        #return None  # Return None if no overlap is found
-
-    # Snap the card to the pile
-    #def snap_pile(self, card, pile):
-     #   """
-      #  Align the card with the pile.
-
-       # Args:
-        #    card (arcade.Sprite): The card sprite to align.
-         #   pile (arcade.Sprite): The pile sprite to align with.
-
-        #"""
-        # Check if pile is a foundation pile (index 2-5 in pile_mat_list)
-        #if pile in self.pile_mat_list[2:6]:
-            # Center align card with pile
-         #   card.center_x = pile.center_x
-          #  card.center_y = pile.center_y
-        # Check if pile is a tableau pile (index 6-12 in pile_mat_list)
-        #elif pile in self.pile_mat_list[6:13]:
-            # Find the index of the tableau pile
-         #   tableau_index = self.pile_mat_list.index(pile) - 6
-            # Calculate the horizontal offset based on the number of cards in the tableau pile
-           # card_offset = 30 * len(self.tableau_pile_lists[tableau_index])
-            # Vertically align card with pile's top card and apply the offset
-          #  card.center_x = pile.center_x
-           # card.center_y = pile.center_y
-            # Add the card to the tableau pile list
-            #self.tableau_pile_lists[tableau_index].append(card)
-        #else:
-            # Handle other cases if needed
-         #   pass
-
-    #def is_valid_move(self, source_pile, target_pile):
-     #   """
-      #  Check if a valid move can be made.
-
-       # Args:
-        #    source_pile (list): The source pile from which to move cards.
-         #   target_pile (list): The target pile to which cards will be moved.
-
-        #Returns:
-         #   bool: True if the move is valid, False otherwise.
-        #"""
-        # If the source pile is empty, the move is invalid
-        #if not source_pile:
-         #   return False
-
-        #if target_pile is None:
-         #   return False
-
-        # # Get the top cards from the source and target piles
-        # source_top_card = source_pile[-1]  # Assuming the card list in the source pile is ordered
-        # target_top_card = None if not target_pile else target_pile[-1]
-        #
-        # # Check if the move is valid based on game rules
-        # # The following is an example rule that you can modify as needed
-        # if target_top_card is None:
-        #     # If the target pile is empty, only Kings (K) can be moved to an empty pile
-        #     if source_top_card.value == "K":
-        #         return True
-        # else:
-        #     # Otherwise, check if card colors and values match, e.g., hearts and diamonds, spades and clubs
-        #     if (source_top_card.color != target_top_card.color and
-        #             source_top_card.value == str(int(target_top_card.value) - 1)):
-        #         return True
-
-        # Move is invalid
-        #return True
 
 def main():
     """ Main function """

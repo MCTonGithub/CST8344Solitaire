@@ -1,6 +1,6 @@
 import arcade
 
-FACE_DOWN_IMAGE = ":resources:images/cards/cardBack_red2.png"
+FACE_DOWN_IMAGE = ":resources:images/cards/cardBack_blue4.png"
 
 class Card(arcade.Sprite):
     """ Card sprite """
@@ -31,3 +31,10 @@ class Card(arcade.Sprite):
     def is_face_down(self):
         """ Is this card face down? """
         return not self.is_face_up
+
+    def get_color(self):
+        """ Get the color of the card based on its suit. """
+        if self.suit in ("Hearts", "Diamonds"):
+            return "Red"
+        else:
+            return "Black"
