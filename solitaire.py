@@ -18,8 +18,8 @@ CARD_HEIGHT = int(180 * CARD_SCALE)
 
 # size of mat
 MAT_PERCENT_OVERSIZE = 1.23
-MAT_HEIGHT = int(CARD_HEIGHT * MAT_PERCENT_OVERSIZE)
-MAT_WIDTH = int(CARD_WIDTH * MAT_PERCENT_OVERSIZE)
+MAT_HEIGHT = int(CARD_HEIGHT * MAT_PERCENT_OVERSIZE )
+MAT_WIDTH = int(CARD_WIDTH * MAT_PERCENT_OVERSIZE )
 
 # Space between mats
 VERTICAL_MARGIN_PERCENT = 0.10
@@ -96,7 +96,8 @@ class Solitaire(arcade.Window):
         """ Set up the game here. Call this function to restart the game. """
 
         # Cards that we are dragging
-        self.held_cards = [0]
+        # self.held_cards = [0]
+        self.held_cards = []
 
         # This is the original location of a card we are moving
         self.held_cards_original_position = []
@@ -186,10 +187,7 @@ class Solitaire(arcade.Window):
         self.card_list.remove(card)
         self.card_list.append(card)
 
-    #    def on_key_press(self, symbol: int, modifiers: int):
-    # When someone select a key from keyboard
-    #        if symbol == arcade.key.R:
-    #            self.setup()
+
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         """ Called when User presses the mouse button """
@@ -221,7 +219,6 @@ class Solitaire(arcade.Window):
                     self.piles[STOCK_PILE].remove(card)
                     self.piles[TALON_PILE].append(card)
                     self.pull_to_top(card)
-                    print(len(self.piles[STOCK_PILE]) )
 
 
 
@@ -319,13 +316,17 @@ class Solitaire(arcade.Window):
                          modifiers: int):
         """ Called when the user presses a mouse button. """
 
-        # If we don't have any cards, who cares
+        # if held_cards is empty list
         if len(self.held_cards) == 0:
+        # if self.held_cards[0] != 0:
             return
 
         # Find the closest pile, in case we are in contact with more than one
+        # if self.held_cards[0] != 0:
         pile, distance = arcade.get_closest_sprite(self.held_cards[0], self.pile_mat_list)
+
         reset_position = True
+
 
         # See if we are in contact with the closest pile
         if arcade.check_for_collision(self.held_cards[0], pile):
