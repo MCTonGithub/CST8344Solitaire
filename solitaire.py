@@ -331,13 +331,13 @@ class Solitaire(arcade.Window):
             target_pile = self.piles[pile_index] # Destination of the card
 
             if card_value == 1: # If it's an Ace
-                if len(target_pile) == 0 or (int(card_value) == int(target_pile[-1].get_value()) + 1): # If foundation is empty
+                if len(target_pile) == 0: # If foundation is empty
                     primary_card.position = self.pile_mat_list[pile_index].position # Matches the pos of card and foundation (move card to foundation)
                     self.move_card_to_new_pile(primary_card, pile_index)
                     return True  # Card successfully moved to the foundation pile
             else:
                 if len(target_pile) > 0: # Foundation pile is not empty, then card can be stacked
-                    top_card = target_pile[-1] # Newest card to be stacked
+                    top_card = target_pile[-1] # The card on the foundation pile to be compared to primary card for stacking
                     if card_suit == top_card.get_suit() and (int(card_value) == int(top_card.get_value()) + 1): # Cards' suit match and Values is in ascending order
                         primary_card.position = self.pile_mat_list[pile_index].position # Matches the pos of card and foundation (move card to foundation)
                         self.move_card_to_new_pile(primary_card, pile_index)
