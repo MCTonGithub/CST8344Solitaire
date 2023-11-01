@@ -2,6 +2,7 @@ from typing import Optional
 
 import arcade
 import random  # for shuffling cards
+import time # for tracking time span when double-clicking a card
 
 from card import Card
 
@@ -91,6 +92,12 @@ class Solitaire(arcade.Window):
 
         # List of lists, each holds a pile of cards.
         self.piles = None
+
+        #for tracking double clicking condition
+        self.click_count = 0
+        self.threshold_to_meet = 0
+
+
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
@@ -192,6 +199,8 @@ class Solitaire(arcade.Window):
     def on_mouse_press(self, x, y, button, key_modifiers):
         """ Called when User presses the mouse button """
 
+        first_clicked = time.time() % 60 #converts to seconds in minute, than seconds in day
+
         # get cards that were clicked
         cards = arcade.get_sprites_at_point((x, y), self.card_list)
 
@@ -208,6 +217,18 @@ class Solitaire(arcade.Window):
             # Check which pile the card is from
             pile_index = self.get_pile_for_card(primary_card)
 
+            #tracks if card sprite is clicked twice or not
+            if (first_clicked -  self.threshold_to_meet)<= 0.6:
+                self.click_count += 1  # increment click count again
+                if self.click_count == 2:
+                    self.move_card_to_foundation(primary_card)  # sends card to location
+                    self.click_count = 0 # reset the count
+            else:
+                self.click_count = 1
+            self.threshold_to_meet = first_clicked
+
+
+
             # standard rule
             if pile_index == STOCK_PILE:
                 # Check if there are cards in the Stock Pile
@@ -219,8 +240,6 @@ class Solitaire(arcade.Window):
                     self.piles[STOCK_PILE].remove(card)
                     self.piles[TALON_PILE].append(card)
                     self.pull_to_top(card)
-
-
 
 
             # # Vegas rule
@@ -256,12 +275,14 @@ class Solitaire(arcade.Window):
                 self.pull_to_top(self.held_cards[0])
 
                 # If stack, grab rest of pile too
-                card_index = self.piles[pile_index].index(primary_card)
-                for i in range(card_index + 1, len(self.piles[pile_index])):
-                    card = self.piles[pile_index][i]
-                    self.held_cards.append(card)
-                    self.held_cards_original_position.append(card.position)
-                    self.pull_to_top(card)
+                if primary_card in self.piles[pile_index]: # primary key must be in a pile
+                    card_index = self.piles[pile_index].index(primary_card)
+
+                    for i in range(card_index + 1, len(self.piles[pile_index])):
+                        card = self.piles[pile_index][i]
+                        self.held_cards.append(card)
+                        self.held_cards_original_position.append(card.position)
+                        self.pull_to_top(card)
 
         # If mats are found and Stock Pile is empty
         elif len(mats) > 0 and len(self.piles[STOCK_PILE]) == 0:
@@ -295,6 +316,34 @@ class Solitaire(arcade.Window):
                         self.piles[STOCK_PILE].append(card)
                         card.position = self.pile_mat_list[STOCK_PILE].position
 
+
+    def move_card_to_foundation(self, primary_card):
+        """Validates the rules for stacking in the foundations and moves the card to foundation if they are met"""
+        if primary_card.is_face_down():
+            # The card must be face up to move to the foundation
+            return False
+
+        card_suit = primary_card.get_suit()
+        card_value = primary_card.get_value()
+
+        # Iterate through the foundation piles
+        for pile_index in range(FOUNDATION_PILE_1, FOUNDATION_PILE_4 + 1):
+            target_pile = self.piles[pile_index] # Destination of the card
+
+            if card_value == 1: # If it's an Ace
+                if len(target_pile) == 0 or (int(card_value) == int(target_pile[-1].get_value()) + 1): # If foundation is empty
+                    primary_card.position = self.pile_mat_list[pile_index].position # Matches the pos of card and foundation (move card to foundation)
+                    self.move_card_to_new_pile(primary_card, pile_index)
+                    return True  # Card successfully moved to the foundation pile
+            else:
+                if len(target_pile) > 0: # Foundation pile is not empty, then card can be stacked
+                    top_card = target_pile[-1] # Newest card to be stacked
+                    if card_suit == top_card.get_suit() and (int(card_value) == int(top_card.get_value()) + 1): # Cards' suit match and Values is in ascending order
+                        primary_card.position = self.pile_mat_list[pile_index].position # Matches the pos of card and foundation (move card to foundation)
+                        self.move_card_to_new_pile(primary_card, pile_index)
+                        return True  # Card successfully moved to the foundation pile
+        return False
+
     def remove_card_from_pile(self, card):
         # remove a card from the pile that it was in
         for pile in self.piles:
@@ -309,6 +358,7 @@ class Solitaire(arcade.Window):
                 return index
 
     def move_card_to_new_pile(self, card, pile_index):
+        """Removes card from previous pile and add it to new pile target"""
         self.remove_card_from_pile(card)
         self.piles[pile_index].append(card)
 
@@ -373,9 +423,6 @@ class Solitaire(arcade.Window):
 
 
 
-
-
-
             # Move to foundation pile
             elif FOUNDATION_PILE_1 <= pile_index <= FOUNDATION_PILE_4 and len(self.held_cards) == 1:
                 target_pile = self.piles[pile_index]
@@ -436,12 +483,4 @@ class Solitaire(arcade.Window):
             self.setup()
 
 
-def main():
-    """ Main function """
-    window = Solitaire()
-    window.setup()
-    arcade.run()
 
-
-if __name__ == "__main__":
-    main()
