@@ -221,7 +221,8 @@ class Solitaire(arcade.Window):
             if (first_clicked -  self.threshold_to_meet)<= 0.6:
                 self.click_count += 1  # increment click count again
                 if self.click_count == 2:
-                    self.move_card_to_foundation(primary_card)  # sends card to location
+                    if primary_card == self.piles[pile_index][-1]:   # Check if the double-clicked card is the top card in the pile
+                        self.move_card_to_foundation(primary_card)  # Sends card to the location
                     self.click_count = 0 # reset the count
             else:
                 self.click_count = 1
