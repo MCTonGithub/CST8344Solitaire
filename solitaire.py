@@ -212,7 +212,7 @@ class Solitaire(arcade.Window):
         # Get mats that were clicked
         mats = arcade.get_sprites_at_point((x, y), self.pile_mat_list)
 
-        # If cards are found
+        # If click on a card
         if len(cards) > 0:
 
             # Select the top card
@@ -221,6 +221,7 @@ class Solitaire(arcade.Window):
 
             # Check which pile the card is from
             pile_index = self.get_pile_for_card(primary_card)
+            print(pile_index, "pile index")
 
             #tracks if card sprite is clicked twice or not
             if (first_clicked -  self.threshold_to_meet)<= 0.6:
@@ -228,6 +229,8 @@ class Solitaire(arcade.Window):
                 if self.click_count == 2:
                     if primary_card == self.piles[pile_index][-1]:   # Check if the double-clicked card is the top card in the pile
                         self.move_card_to_foundation(primary_card)  # Sends card to the location
+                        if self.game_mode_flag == False:
+                            self.show_talon_cards()
                     self.click_count = 0 # reset the count
             else:
                 self.click_count = 1
@@ -235,45 +238,33 @@ class Solitaire(arcade.Window):
 
 
 
-            # # standard rule
-            # if pile_index == STOCK_PILE:
-            #     # Check if there are cards in the Stock Pile
-            #     if len(self.piles[STOCK_PILE]) > 0:
-            #         # Flip the top card from the Stock Pile to the Talon Pile
-            #         card = self.piles[STOCK_PILE][-1]
-            #         card.face_up()
-            #         card.position = self.pile_mat_list[TALON_PILE].position
-            #         self.piles[STOCK_PILE].remove(card)
-            #         self.piles[TALON_PILE].append(card)
-            #         self.pull_to_top(card)
+            # standard rule
+            if  self.game_mode_flag and pile_index == STOCK_PILE:
+                # Check if there are cards in the Stock Pile
+                if len(self.piles[STOCK_PILE]) > 0:
+                    # Flip the top card from the Stock Pile to the Talon Pile
+                    card = self.piles[STOCK_PILE][-1]
+                    card.face_up()
+                    card.position = self.pile_mat_list[TALON_PILE].position
+                    self.piles[STOCK_PILE].remove(card)
+                    self.piles[TALON_PILE].append(card)
+                    self.pull_to_top(card)
 
 
             # Vegas rule
             # If we click on the stock, 3 cards move to the talon pile
-            if pile_index == STOCK_PILE:
-                # Flip the 3 new cards
-                for i in range(3):
-                    # If there is no more cards, stop
-                    if len(self.piles[STOCK_PILE]) == 0:
-                        break
-                    # Go back to the top of the stock pile
-                    card = self.piles[STOCK_PILE][-1]
-                    # Now flip that card
-                    card.face_up()
-                    # Position of the talon with downward shift for Vegas mode
-                    card.position = (
-                        self.pile_mat_list[TALON_PILE].position[0],
-                        self.pile_mat_list[TALON_PILE].position[1] - i * 30
-                    )
-                    # Remove the card from the stock
-                    self.piles[STOCK_PILE].remove(card)
-                    # Move the card to the talon
-                    self.piles[TALON_PILE].append(card)
-                    # Put the new cards at the top of the pile
-                    self.pull_to_top(card)
+            if not self.game_mode_flag and pile_index == STOCK_PILE:
+
+
+                self.get_3_talon_cards()
+
+
+
 
             elif primary_card.is_face_down():
                 primary_card.face_up()
+
+
 
             else:
                 # All other cases, grab the face-up card
@@ -325,6 +316,31 @@ class Solitaire(arcade.Window):
                         self.piles[STOCK_PILE].append(card)
                         card.position = self.pile_mat_list[STOCK_PILE].position
 
+    def get_3_talon_cards(self):
+        # Flip the 3 new cards
+        for i in range(3):
+            # If there is no more cards, stop
+            if len(self.piles[STOCK_PILE]) == 0:
+                break
+
+            # Go back to the top of the stock pile
+            card = self.piles[STOCK_PILE][-1]
+
+            # Now flip that card
+            card.face_up()
+
+            # Position of the talon with downward shift for Vegas mode
+            card.position = (
+                self.pile_mat_list[TALON_PILE].position[0],
+                self.pile_mat_list[TALON_PILE].position[1] - i * (CARD_VERTICAL_OFFSET+10)
+            )
+            print(card.position, "card position")
+            # Remove the card from the stock
+            self.piles[STOCK_PILE].remove(card)
+            # Move the card to the talon
+            self.piles[TALON_PILE].append(card)
+            # Put the new cards at the top of the pile
+            self.pull_to_top(card)
 
     def move_card_to_foundation(self, primary_card):
         """Validates the rules for stacking in the foundations and moves the card to foundation if they are met"""
@@ -389,8 +405,8 @@ class Solitaire(arcade.Window):
 
         # See if we are in contact with the closest pile
         if arcade.check_for_collision(self.held_cards[0], pile):
-
-            # What pile is it?
+            card_orignal_from = self.get_pile_for_card(self.held_cards[0])
+            # Which pile is going to place to?
             pile_index = self.pile_mat_list.index(pile)
 
             #  Is it the same pile we came from?
@@ -465,6 +481,9 @@ class Solitaire(arcade.Window):
                             reset_position = False
 
 
+            if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
+                # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
+                self.show_talon_cards()
 
         if reset_position:
             #            # Where-ever we were dropped, it wasn't valid. Reset the each card's position
@@ -492,7 +511,30 @@ class Solitaire(arcade.Window):
             self.setup()
         elif symbol == arcade.key.S:
             # Switch game mode
+            self.setup()
             self.game_mode_flag = not self.game_mode_flag
+
+    def show_talon_cards(self):
+        """Show the top 3 cards in Talon Pile"""
+
+        # Get the Talon Pile
+        talon_pile = self.piles[TALON_PILE]
+
+        # Make sure there are at least 3 cards in Talon Pile
+        if len(talon_pile) >= 3:
+            # Iterate over the top 3 cards in Talon Pile
+            for i in range(2,-1, -1):
+                card = talon_pile[-1 - i]  # Get the topmost card
+                # print(card.get_value(), card.get_suit())
+                card.face_up()  # Make sure the card is face up
+                card.position = (
+                    self.pile_mat_list[TALON_PILE].center_x,
+                    self.pile_mat_list[TALON_PILE].center_y + (i-2) * (CARD_VERTICAL_OFFSET+10)
+                )
+
+                # Ensure the card is in the card list and on top
+                self.pull_to_top(card)
+
 
 
 def main():
