@@ -97,7 +97,8 @@ class Solitaire(arcade.Window):
         self.click_count = 0
         self.threshold_to_meet = 0
 
-
+        # Flag to determine game mode (True for Classic, False for Vegas)
+        self.game_mode_flag = True
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
@@ -188,6 +189,10 @@ class Solitaire(arcade.Window):
         # Draw the cards
         self.card_list.draw()
 
+        # Draw the game mode text
+        mode_text = "Classic Mode" if self.game_mode_flag else "Vegas Mode"
+        arcade.draw_text(mode_text, 10, 10, arcade.color.WHITE, 14)
+
     def pull_to_top(self, card: arcade.Sprite):
 
         # remove and append to the end
@@ -230,39 +235,42 @@ class Solitaire(arcade.Window):
 
 
 
-            # standard rule
-            if pile_index == STOCK_PILE:
-                # Check if there are cards in the Stock Pile
-                if len(self.piles[STOCK_PILE]) > 0:
-                    # Flip the top card from the Stock Pile to the Talon Pile
-                    card = self.piles[STOCK_PILE][-1]
-                    card.face_up()
-                    card.position = self.pile_mat_list[TALON_PILE].position
-                    self.piles[STOCK_PILE].remove(card)
-                    self.piles[TALON_PILE].append(card)
-                    self.pull_to_top(card)
-
-
-            # # Vegas rule
-            # # If we click on the stock, 3 cards move to the talon pile
+            # # standard rule
             # if pile_index == STOCK_PILE:
-            #     # Flip the 3 new cards
-            #     for i in range(3):
-            #         # If there is no more cards, stop
-            #         if len(self.piles[STOCK_PILE]) == 0:
-            #             break
-            #         # Go back to the top of the stock pile
+            #     # Check if there are cards in the Stock Pile
+            #     if len(self.piles[STOCK_PILE]) > 0:
+            #         # Flip the top card from the Stock Pile to the Talon Pile
             #         card = self.piles[STOCK_PILE][-1]
-            #         # Now flip that card
             #         card.face_up()
-            #         # Position of the talon
             #         card.position = self.pile_mat_list[TALON_PILE].position
-            #         # Remove the card from the stock
             #         self.piles[STOCK_PILE].remove(card)
-            #         # Move the card to the talon
             #         self.piles[TALON_PILE].append(card)
-            #         # Put the new cards at the top of the pile
             #         self.pull_to_top(card)
+
+
+            # Vegas rule
+            # If we click on the stock, 3 cards move to the talon pile
+            if pile_index == STOCK_PILE:
+                # Flip the 3 new cards
+                for i in range(3):
+                    # If there is no more cards, stop
+                    if len(self.piles[STOCK_PILE]) == 0:
+                        break
+                    # Go back to the top of the stock pile
+                    card = self.piles[STOCK_PILE][-1]
+                    # Now flip that card
+                    card.face_up()
+                    # Position of the talon with downward shift for Vegas mode
+                    card.position = (
+                        self.pile_mat_list[TALON_PILE].position[0],
+                        self.pile_mat_list[TALON_PILE].position[1] - i * 30
+                    )
+                    # Remove the card from the stock
+                    self.piles[STOCK_PILE].remove(card)
+                    # Move the card to the talon
+                    self.piles[TALON_PILE].append(card)
+                    # Put the new cards at the top of the pile
+                    self.pull_to_top(card)
 
             elif primary_card.is_face_down():
                 primary_card.face_up()
@@ -482,7 +490,9 @@ class Solitaire(arcade.Window):
         if symbol == arcade.key.R:
             # Restart
             self.setup()
-
+        elif symbol == arcade.key.S:
+            # Switch game mode
+            self.game_mode_flag = not self.game_mode_flag
 
 
 def main():
