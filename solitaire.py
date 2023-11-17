@@ -77,8 +77,24 @@ class Solitaire(arcade.Window):
         super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_TITLE)
         # initialize score
         self.score = 1000
+        # winning status
+        self.winning_status  = False
 
-        self.winning_condition  = False
+        # all theme setting
+        self.theme_setting = [
+            {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
+             "mat": (255, 0, 0, 128)},
+            {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.GREEN,
+             "mat": (0, 255, 0, 128)},
+            {"background": arcade.load_texture("theme_photos/Halloween.jpg"), "text": arcade.color.ORANGE,
+             "mat": (255, 165, 0, 128)},
+            {"background": arcade.load_texture("theme_photos/NewYear.jpg"), "text": arcade.color.WHITE,
+             "mat": (255, 255, 255, 128)}
+        ]
+
+        # current theme
+        self.current_theme_index = 0
+        self.set_theme()
 
         # Pile list
         self.card_list = None  #: Optional[arcade.SpriteList]
@@ -104,6 +120,15 @@ class Solitaire(arcade.Window):
         # Flag to determine game mode (True for Classic, False for Vegas)
         self.game_mode_flag = True
 
+    def set_theme(self):
+
+        theme = self.theme_setting[self.current_theme_index]
+        self.background = theme["background"]
+        self.text_color = theme["text"]
+        self.mat_color = theme["mat"]
+
+
+
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
 
@@ -119,27 +144,36 @@ class Solitaire(arcade.Window):
         # Sprite list with all the mats tha cards lay on.
         self.pile_mat_list: arcade.SpriteList = arcade.SpriteList()
 
+        # for i, theme in enumerate(self.theme_colors):
+        #     pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, theme["mat"])
+        #     pile.position = self.pile_mat_list[i].position
+        #     self.pile_mat_list.append(pile)
+
         # Mat square for the Stock
-        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
+        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
         pile.position = LEFT_X, TOP_Y
         self.pile_mat_list.append(pile)
 
         # Mat square for the Talon
-        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
+        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
         pile.position = LEFT_X + X_SPACING, TOP_Y
         self.pile_mat_list.append(pile)
 
         # Mats for the Tableau
         for i in range(7):
-            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
+            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
             pile.position = MIDDLE_X + i * X_SPACING, MIDDLE_Y
             self.pile_mat_list.append(pile)
 
         # Mats for the Foundation
         for i in range(4):
-            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.csscolor.DARK_SEA_GREEN)
+            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
             pile.position = RIGHT_X - i * X_SPACING, TOP_Y
             self.pile_mat_list.append(pile)
+
+
+
+
 
         # --- Create, shuffle, and deal the cards
 
@@ -187,6 +221,13 @@ class Solitaire(arcade.Window):
         # Clear the screen
         self.clear()
 
+        arcade.draw_texture_rectangle(
+            self.width // 2, self.height // 2,
+            self.width, self.height, self.background
+        )
+
+        # Set mat colors
+        self.set_mat_color()
         # Draw the mats the cards go on top
         self.pile_mat_list.draw()
 
@@ -195,6 +236,12 @@ class Solitaire(arcade.Window):
 
         # Draw the game mode text
         self.display_score()
+
+    def set_mat_color(self):
+        for i in range(len(self.pile_mat_list)):
+            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
+            pile.position = self.pile_mat_list[i].position
+            self.pile_mat_list[i] = pile  # replace previous mat
 
     def pull_to_top(self, card: arcade.Sprite):
 
@@ -539,7 +586,13 @@ class Solitaire(arcade.Window):
             self.score = 1000
         elif symbol == arcade.key.W:
             # fast win
-            self.winning_condition = True
+            self.winning_status = True
+        elif symbol == arcade.key.T:
+            # switch theme
+            self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
+            self.set_theme()
+
+
 
     def show_talon_cards(self):
         """Show the top 3 cards in Talon Pile"""
@@ -566,15 +619,15 @@ class Solitaire(arcade.Window):
         # if all the cards are in the foundation pile
         for pile_index in range(FOUNDATION_PILE_1, FOUNDATION_PILE_4 + 1):
             if len(self.piles[pile_index]) != 13:
-                self.winning_condition = False
+                self.winning_status = False
                 return
 
         #otherwise, keep playing
-        self.winning_condition = True
+        self.winning_status = True
 
     def display_score(self):
 
-        if self.winning_condition:
+        if self.winning_status:
             arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2, arcade.color.WHITE, 36,
                              anchor_x="center")
             arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200,
