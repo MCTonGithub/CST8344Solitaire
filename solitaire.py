@@ -83,13 +83,13 @@ class Solitaire(arcade.Window):
         # all theme setting
         self.theme_setting = [
             {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
-             "mat": (255, 0, 0, 128)},
-            {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.GREEN,
-             "mat": (0, 255, 0, 128)},
+             "mat": (255, 0, 0, 128), "title": "Canada Day", "reference": "Red Maple Leaves on White Background, by Anna Nekrashevich,url: https://www.pexels.com/photo/red-maple-leaves-on-white-background-7144752/"},
+            {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.ROSE,
+             "mat": (255, 0, 127, 128), "title": "Christmas", "reference": "Christmas Board Decors, by George Dolgikh, url: https://www.pexels.com/photo/christmas-board-decors-1303098/"},
             {"background": arcade.load_texture("theme_photos/Halloween.jpg"), "text": arcade.color.ORANGE,
-             "mat": (255, 165, 0, 128)},
+             "mat": (255, 165, 0, 128), "title": "Halloween", "reference": "Pumpkin and Skull on Table, by Chokniti Khongchum, url: https://www.pexels.com/photo/pumpkin-and-skull-on-table-2679968/"},
             {"background": arcade.load_texture("theme_photos/NewYear.jpg"), "text": arcade.color.WHITE,
-             "mat": (255, 255, 255, 128)}
+             "mat": (128, 0, 128, 128), "title": "New Year", "reference": "Purple Fireworks Display, by Baluc Photography, url: https://www.pexels.com/photo/purple-fireworks-display-6598294/"}
         ]
 
         # current theme
@@ -126,6 +126,9 @@ class Solitaire(arcade.Window):
         self.background = theme["background"]
         self.text_color = theme["text"]
         self.mat_color = theme["mat"]
+        self.reference = theme["reference"]
+        self.title = theme["title"]
+
 
 
 
@@ -236,6 +239,11 @@ class Solitaire(arcade.Window):
 
         # Draw the game mode text
         self.display_score()
+
+        # display theme title
+        self.display_theme_title()
+        # display reference of photo
+        self.display_reference()
 
     def set_mat_color(self):
         for i in range(len(self.pile_mat_list)):
@@ -628,13 +636,28 @@ class Solitaire(arcade.Window):
     def display_score(self):
 
         if self.winning_status:
-            arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2, arcade.color.WHITE, 36,
+            arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
                              anchor_x="center")
-            arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200,
-                             arcade.color.WHITE, 18, anchor_x="center")
+            arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                             self.text_color, 18, anchor_x="center")
         else:
-            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200,
-                             arcade.color.WHITE, 18, anchor_x="center")
+            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                             self.text_color, 18, anchor_x="center")
+
+    def display_theme_title(self):
+
+        if self.game_mode_flag:
+            self.game_mode_flag_txt = "Classic Mode"
+        else:
+            self.game_mode_flag_txt = "Vegas Mode"
+
+
+        arcade.draw_text( f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt}", 5, 40, self.text_color, 28,
+                         anchor_x="left")
+    def display_reference(self):
+
+        arcade.draw_text( self.reference, 5, 2, arcade.color.BLUE, 10,
+                         anchor_x="left")
 
 
 def main():
