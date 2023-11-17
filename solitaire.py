@@ -75,6 +75,10 @@ class Solitaire(arcade.Window):
 
     def __init__(self):
         super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_TITLE)
+        # initialize score
+        self.score = 1000
+
+        self.winning_condition  = False
 
         # Pile list
         self.card_list = None  #: Optional[arcade.SpriteList]
@@ -190,8 +194,7 @@ class Solitaire(arcade.Window):
         self.card_list.draw()
 
         # Draw the game mode text
-        mode_text = "Classic Mode" if self.game_mode_flag else "Vegas Mode"
-        arcade.draw_text(mode_text, 10, 10, arcade.color.WHITE, 14)
+        self.display_score()
 
     def pull_to_top(self, card: arcade.Sprite):
 
@@ -241,7 +244,7 @@ class Solitaire(arcade.Window):
 
             # Vegas rule
             # If we click on the stock, 3 cards move to the talon pile
-            if not self.game_mode_flag and pile_index == STOCK_PILE:
+            elif not self.game_mode_flag and pile_index == STOCK_PILE:
                 self.show_3_talon_cards()
 
             elif primary_card.is_face_down():
@@ -276,7 +279,7 @@ class Solitaire(arcade.Window):
                     # Put on top of Stock
                     self.pull_to_top(self.held_cards[0])
 
-            # If mats are found and Stock Pile is empty
+        # If click on a mat and Stock Pile is empty
         elif len(mats) > 0 and len(self.piles[STOCK_PILE]) == 0:
             mat = mats[0]
             mat_index = self.pile_mat_list.index(mat)
@@ -289,7 +292,10 @@ class Solitaire(arcade.Window):
                     card.position = self.pile_mat_list[STOCK_PILE].position
                     self.piles[STOCK_PILE].append(card)
 
-        # If cards are not found
+
+
+
+        ## If cards are not found
         else:
 
             # You didn't click on a card
@@ -317,6 +323,7 @@ class Solitaire(arcade.Window):
             self.piles[STOCK_PILE].remove(card)
             self.piles[TALON_PILE].append(card)
             self.pull_to_top(card)
+            print(card.get_value(), card.get_suit())  # For debugging purposes
 
     def show_3_talon_cards(self):
         # Flip the 3 new cards
@@ -330,13 +337,13 @@ class Solitaire(arcade.Window):
 
             # Now flip that card
             card.face_up()
+            print(card.get_value(), card.get_suit())    # For debugging purposes
 
             # Position of the talon with downward shift for Vegas mode
             card.position = (
                 self.pile_mat_list[TALON_PILE].position[0],
                 self.pile_mat_list[TALON_PILE].position[1] - i * (CARD_VERTICAL_OFFSET + 10)
             )
-            print(card.position, "card position")
             # Remove the card from the stock
             self.piles[STOCK_PILE].remove(card)
             # Move the card to the talon
@@ -435,6 +442,7 @@ class Solitaire(arcade.Window):
                 # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
                 self.show_talon_cards()
 
+            self.score -= 1
         if reset_position:
             #            # Where-ever we were dropped, it wasn't valid. Reset the each card's position
             #            # to its original spot.
@@ -443,6 +451,7 @@ class Solitaire(arcade.Window):
 
         #        # We are no longer holding cards
         self.held_cards = []
+        # self.check_winning()
 
     def move_to_tableau_pile(self, pile, pile_index, reset_position):
         # if pile is not empty
@@ -464,6 +473,7 @@ class Solitaire(arcade.Window):
 
                 # Success, don't reset position of cards
                 reset_position = False
+
 
         else:
             # If the target pile is empty and the prime card of held cards is a King (value is 13),
@@ -529,6 +539,10 @@ class Solitaire(arcade.Window):
             # Switch game mode
             self.setup()
             self.game_mode_flag = not self.game_mode_flag
+            self.score = 1000
+        elif symbol == arcade.key.W:
+            # fast win
+            self.winning_condition = True
 
     def show_talon_cards(self):
         """Show the top 3 cards in Talon Pile"""
@@ -550,6 +564,27 @@ class Solitaire(arcade.Window):
 
                 # Ensure the card is in the card list and on top
                 self.pull_to_top(card)
+
+    def check_winning(self):
+        # if all the cards are in the foundation pile
+        for pile_index in range(FOUNDATION_PILE_1, FOUNDATION_PILE_4 + 1):
+            if len(self.piles[pile_index]) != 13:
+                self.winning_condition = False
+
+        print("in check winning")
+        # self.display_score()
+        self.winning_condition = True
+
+    def display_score(self):
+
+        if self.winning_condition:
+            arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2, arcade.color.WHITE, 36,
+                             anchor_x="center")
+            arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200,
+                             arcade.color.WHITE, 18, anchor_x="center")
+        else:
+            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200,
+                             arcade.color.WHITE, 18, anchor_x="center")
 
 
 def main():
