@@ -451,7 +451,8 @@ class Solitaire(arcade.Window):
 
         #        # We are no longer holding cards
         self.held_cards = []
-        # self.check_winning()
+        self.check_winning()
+        print(self.winning_condition, "winning condition")
 
     def move_to_tableau_pile(self, pile, pile_index, reset_position):
         # if pile is not empty
@@ -570,9 +571,9 @@ class Solitaire(arcade.Window):
         for pile_index in range(FOUNDATION_PILE_1, FOUNDATION_PILE_4 + 1):
             if len(self.piles[pile_index]) != 13:
                 self.winning_condition = False
+                return
 
-        print("in check winning")
-        # self.display_score()
+        #otherwise, keep playing
         self.winning_condition = True
 
     def display_score(self):
