@@ -259,7 +259,6 @@ class Solitaire(arcade.Window):
                 self.pull_to_top(self.held_cards[0])
 
                 # If stack, grab rest of pile too
-                print(pile_index, "pile index")
 
                 if primary_card in self.piles[pile_index]:  # primary key must be in a pile
                     card_index = self.piles[pile_index].index(primary_card)
@@ -323,7 +322,6 @@ class Solitaire(arcade.Window):
             self.piles[STOCK_PILE].remove(card)
             self.piles[TALON_PILE].append(card)
             self.pull_to_top(card)
-            print(card.get_value(), card.get_suit())  # For debugging purposes
 
     def show_3_talon_cards(self):
         # Flip the 3 new cards
@@ -337,7 +335,6 @@ class Solitaire(arcade.Window):
 
             # Now flip that card
             card.face_up()
-            print(card.get_value(), card.get_suit())    # For debugging purposes
 
             # Position of the talon with downward shift for Vegas mode
             card.position = (
@@ -452,7 +449,6 @@ class Solitaire(arcade.Window):
         #        # We are no longer holding cards
         self.held_cards = []
         self.check_winning()
-        print(self.winning_condition, "winning condition")
 
     def move_to_tableau_pile(self, pile, pile_index, reset_position):
         # if pile is not empty
