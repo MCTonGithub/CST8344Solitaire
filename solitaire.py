@@ -125,6 +125,11 @@ class Solitaire(arcade.Window):
 
         self.draw3_option_txt = ""
 
+        #saves points if True
+        self.cumulative_option = False #not activated by default
+
+        self.cumulative_option_txt = ""
+
     def set_theme(self):
 
         theme = self.theme_setting[self.current_theme_index]
@@ -289,8 +294,8 @@ class Solitaire(arcade.Window):
                 if self.click_count == 2:
                     if primary_card == self.piles[pile_index][-1]:  # Check if the double-clicked card is the top card in the pile
                         self.move_card_to_foundation(primary_card)  # Sends card to the location
-                        if self.game_mode_flag == False:
-                            self.show_talon_cards()
+                        # if self.game_mode_flag == False:
+                        #     self.show_talon_cards()
                     self.click_count = 0  # reset the count
             else:
                 self.click_count = 1
@@ -397,28 +402,29 @@ class Solitaire(arcade.Window):
 
     def show_3_talon_cards(self):
         """Flip the 3 new cards"""
-        for i in range(3):
-            # If there is no more cards, stop
-            if len(self.piles[STOCK_PILE]) == 0:
-                break
+        if self.draw3_option is True:
+            for i in range(3):
+                # If there is no more cards, stop
+                if len(self.piles[STOCK_PILE]) == 0:
+                    break
 
-            # Go back to the top of the stock pile
-            card = self.piles[STOCK_PILE][-1]
+                # Go back to the top of the stock pile
+                card = self.piles[STOCK_PILE][-1]
 
-            # Now flip that card
-            card.face_up()
+                # Now flip that card
+                card.face_up()
 
-            # Position of the talon with downward shift for Vegas mode
-            card.position = (
-                self.pile_mat_list[TALON_PILE].position[0],
-                self.pile_mat_list[TALON_PILE].position[1] - i * (CARD_VERTICAL_OFFSET + 10)
-            )
-            # Remove the card from the stock
-            self.piles[STOCK_PILE].remove(card)
-            # Move the card to the talon
-            self.piles[TALON_PILE].append(card)
-            # Put the new cards at the top of the pile
-            self.pull_to_top(card)
+                # Position of the talon with downward shift for Vegas mode
+                card.position = (
+                    self.pile_mat_list[TALON_PILE].position[0],
+                    self.pile_mat_list[TALON_PILE].position[1] - i * (CARD_VERTICAL_OFFSET + 10)
+                )
+                # Remove the card from the stock
+                self.piles[STOCK_PILE].remove(card)
+                # Move the card to the talon
+                self.piles[TALON_PILE].append(card)
+                # Put the new cards at the top of the pile
+                self.pull_to_top(card)
 
 
     def move_card_to_foundation(self, primary_card):
@@ -514,9 +520,9 @@ class Solitaire(arcade.Window):
                 reset_position = self.move_to_foundation_pile(pile, pile_index, reset_position, target_pile)
                 self.score += 5
 
-            if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
-                # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
-                self.show_talon_cards()
+            # if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
+            #     # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
+            #     self.show_talon_cards()
 
 
         if reset_position:
@@ -610,18 +616,28 @@ class Solitaire(arcade.Window):
         """ User presses key """
         if symbol == arcade.key.R:
             # Restart
-            self.score = -52
+            self.score = -52 #restarts the score
+            self.cumulative_option_txt = ""
+            self.draw3_option_txt = ""
             self.setup()
         elif symbol == arcade.key.S:
             # Switch game mode
+            self.cumulative_option_txt = ""
+            self.draw3_option_txt = ""
+            if self.cumulative_option is True and self.game_mode_flag is True:
+                self.score-=52 #saves score
             self.setup()
             self.game_mode_flag = not self.game_mode_flag
-            self.score = -52
         elif symbol == arcade.key.O and self.game_mode_flag is False: #should be in vegas mode
             if self.draw3_option is False: #activate draw3_option
                 self.draw3_option = True
             else: #deactivate draw3_option
                 self.draw3_option = False
+        elif symbol == arcade.key.C and self.game_mode_flag is False: #should be in vegas mode
+            if self.cumulative_option is False: #activate cumulative_option
+                self.cumulative_option = True
+            else: #deactivate cumulative_option
+                self.cumulative_option = False
         elif symbol == arcade.key.W:
             # fast win
             self.winning_status = True
@@ -684,9 +700,14 @@ class Solitaire(arcade.Window):
                 self.draw3_option_txt = "Draw 3 is ON"
             else:
                 self.draw3_option_txt = ""
+            if self.cumulative_option is True:
+                self.cumulative_option_txt = "Cumulative is ON"
+            else:
+                self.cumulative_option_txt = ""
 
 
-
+        arcade.draw_text( f"{self.cumulative_option_txt}", 5, 75, self.text_color, 25,
+                         anchor_x="left")
         arcade.draw_text( f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt} {self.draw3_option_txt}", 5, 40, self.text_color, 25,
                          anchor_x="left")
     def display_reference(self):
