@@ -120,6 +120,11 @@ class Solitaire(arcade.Window):
         # Flag to determine game mode (True for Classic, False for Vegas)
         self.game_mode_flag = True
 
+        #Draw 3 option activate (True of False). False by default and can only be True if it's in Vegas mode
+        self.draw3_option = False
+
+        self.draw3_option_txt = ""
+
     def set_theme(self):
 
         theme = self.theme_setting[self.current_theme_index]
@@ -299,7 +304,10 @@ class Solitaire(arcade.Window):
             # Vegas rule
             # If we click on the stock, 3 cards move to the talon pile
             elif not self.game_mode_flag and pile_index == STOCK_PILE:
-                self.show_3_talon_cards()
+                if self.draw3_option is True:  # if it's in vegas mode and draw3_option is True
+                    self.show_3_talon_cards()
+                else: #draw3_option is False
+                    self.show_1_talon_card()
 
             elif primary_card.is_face_down():
                 primary_card.face_up()
@@ -377,8 +385,18 @@ class Solitaire(arcade.Window):
             self.piles[TALON_PILE].append(card)
             self.pull_to_top(card)
 
+            if self.game_mode_flag is False:
+                talon_pile = self.piles[TALON_PILE]
+                num_cards = len(talon_pile)
+                for i in range(num_cards):  # stack the cards
+                    card = talon_pile[i]
+                    card.position = (
+                        self.pile_mat_list[TALON_PILE].position[0],
+                        self.pile_mat_list[TALON_PILE].position[1]
+                    )
+
     def show_3_talon_cards(self):
-        # Flip the 3 new cards
+        """Flip the 3 new cards"""
         for i in range(3):
             # If there is no more cards, stop
             if len(self.piles[STOCK_PILE]) == 0:
@@ -401,6 +419,7 @@ class Solitaire(arcade.Window):
             self.piles[TALON_PILE].append(card)
             # Put the new cards at the top of the pile
             self.pull_to_top(card)
+
 
     def move_card_to_foundation(self, primary_card):
         """Validates the rules for stacking in the foundations and moves the card to foundation if they are met"""
@@ -598,6 +617,11 @@ class Solitaire(arcade.Window):
             self.setup()
             self.game_mode_flag = not self.game_mode_flag
             self.score = -52
+        elif symbol == arcade.key.O and self.game_mode_flag is False: #should be in vegas mode
+            if self.draw3_option is False: #activate draw3_option
+                self.draw3_option = True
+            else: #deactivate draw3_option
+                self.draw3_option = False
         elif symbol == arcade.key.W:
             # fast win
             self.winning_status = True
@@ -640,15 +664,15 @@ class Solitaire(arcade.Window):
         self.winning_status = True
 
     def display_score(self):
-
-        if self.winning_status:
-            arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
-                             anchor_x="center")
-            arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
-                             self.text_color, 18, anchor_x="center")
-        else:
-            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
-                             self.text_color, 18, anchor_x="center")
+        if self.game_mode_flag is False: #only for vegas mode
+            if self.winning_status:
+                arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
+                                 anchor_x="center")
+                arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                                 self.text_color, 18, anchor_x="center")
+            else:
+                arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                                 self.text_color, 18, anchor_x="center")
 
     def display_theme_title(self):
 
@@ -656,9 +680,14 @@ class Solitaire(arcade.Window):
             self.game_mode_flag_txt = "Classic Mode"
         else:
             self.game_mode_flag_txt = "Vegas Mode"
+            if self.draw3_option is True:
+                self.draw3_option_txt = "Draw 3 is ON"
+            else:
+                self.draw3_option_txt = ""
 
 
-        arcade.draw_text( f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt}", 5, 40, self.text_color, 28,
+
+        arcade.draw_text( f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt} {self.draw3_option_txt}", 5, 40, self.text_color, 25,
                          anchor_x="left")
     def display_reference(self):
 
