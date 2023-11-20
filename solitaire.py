@@ -81,7 +81,8 @@ class Solitaire(arcade.Window):
         self.winning_status  = False
 
         # all theme setting
-        self.theme_setting = [
+        self.theme_setting = [{"background": arcade.load_texture("C:/Users/matth/Downloads/artworks-000672876424-5wl11j-t500x500.jpg"), "text": arcade.color.BLUE,
+             "mat": (128, 0, 128, 128), "title": "Padoru Padoru", "reference": "https://soundcloud.com/999550/christmas-song-by-st-music-feat-6a3yka-padoru-padoru-rus-cover-jingle-bells"}, #don't forget to remove this
             {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
              "mat": (255, 0, 0, 128), "title": "Canada Day", "reference": "Red Maple Leaves on White Background, by Anna Nekrashevich,url: https://www.pexels.com/photo/red-maple-leaves-on-white-background-7144752/"},
             {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.ROSE,
@@ -89,7 +90,7 @@ class Solitaire(arcade.Window):
             {"background": arcade.load_texture("theme_photos/Halloween.jpg"), "text": arcade.color.ORANGE,
              "mat": (255, 165, 0, 128), "title": "Halloween", "reference": "Pumpkin and Skull on Table, by Chokniti Khongchum, url: https://www.pexels.com/photo/pumpkin-and-skull-on-table-2679968/"},
             {"background": arcade.load_texture("theme_photos/NewYear.jpg"), "text": arcade.color.WHITE,
-             "mat": (128, 0, 128, 128), "title": "New Year", "reference": "Purple Fireworks Display, by Baluc Photography, url: https://www.pexels.com/photo/purple-fireworks-display-6598294/"}
+             "mat": (128, 0, 128, 128), "title": "New Year", "reference": "Purple Fireworks Display, by Baluc Photography, url: https://www.pexels.com/photo/purple-fireworks-display-6598294/"},
         ]
 
         # current theme
@@ -248,7 +249,7 @@ class Solitaire(arcade.Window):
         self.card_list.draw()
 
         # Draw the game mode text
-        self.display_score()
+        self.display_win_score()
 
         # display theme title
         self.display_theme_title()
@@ -446,7 +447,8 @@ class Solitaire(arcade.Window):
                     primary_card.position = self.pile_mat_list[
                         pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                     self.move_card_to_new_pile(primary_card, pile_index)
-                    self.score += 5
+                    if self.game_mode_flag is False:
+                        self.score += 5
                     return True  # Card successfully moved to the foundation pile
 
             else:
@@ -458,7 +460,8 @@ class Solitaire(arcade.Window):
                         primary_card.position = self.pile_mat_list[
                             pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                         self.move_card_to_new_pile(primary_card, pile_index)
-                        self.score += 5
+                        if self.game_mode_flag is False:
+                            self.score += 5
                         return True  # Card successfully moved to the foundation pile
 
         return False
@@ -511,14 +514,13 @@ class Solitaire(arcade.Window):
             elif TABLEAU_PILE_1 <= pile_index <= TABLEAU_PILE_7:
                 reset_position = self.move_to_tableau_pile(pile, pile_index, reset_position)
 
-
-
             # Move to foundation pile
             elif FOUNDATION_PILE_1 <= pile_index <= FOUNDATION_PILE_4 and len(self.held_cards) == 1:
                 target_pile = self.piles[pile_index]
 
                 reset_position = self.move_to_foundation_pile(pile, pile_index, reset_position, target_pile)
-                self.score += 5
+                if self.game_mode_flag is False:
+                    self.score += 5
 
             # if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
             #     # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
@@ -617,6 +619,9 @@ class Solitaire(arcade.Window):
         if symbol == arcade.key.R:
             # Restart
             self.score = -52 #restarts the score
+            if self.cumulative_option is True and self.game_mode_flag is False: #activate cumulative_option
+                self.cumulative_option = False
+            self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
             self.setup()
@@ -624,8 +629,12 @@ class Solitaire(arcade.Window):
             # Switch game mode
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
-            if self.cumulative_option is True and self.game_mode_flag is True:
-                self.score-=52 #saves score
+            if self.cumulative_option is True and self.game_mode_flag is False:
+                self.score-=52 #saves score and adds the previous one
+            elif self.cumulative_option is False and self.game_mode_flag is False:
+                self.score = -52 #resets the score is C is not on and in vegas mode
+            if self.winning_status:
+                self.winning_status = False
             self.setup()
             self.game_mode_flag = not self.game_mode_flag
         elif symbol == arcade.key.O and self.game_mode_flag is False: #should be in vegas mode
@@ -638,6 +647,14 @@ class Solitaire(arcade.Window):
                 self.cumulative_option = True
             else: #deactivate cumulative_option
                 self.cumulative_option = False
+        elif symbol == arcade.key.K and self.game_mode_flag is False and self.winning_status is True: #new vegas game after winning
+            if self.cumulative_option is True:
+                self.score -= 52  # saves score and adds the previous one
+
+            self.winning_status = False
+            self.cumulative_option_txt = ""
+            self.draw3_option_txt = ""
+            self.setup()
         elif symbol == arcade.key.W:
             # fast win
             self.winning_status = True
@@ -679,16 +696,16 @@ class Solitaire(arcade.Window):
         #otherwise, keep playing
         self.winning_status = True
 
-    def display_score(self):
-        if self.game_mode_flag is False: #only for vegas mode
-            if self.winning_status:
-                arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
-                                 anchor_x="center")
+    def display_win_score(self):
+        if self.winning_status:
+            arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
+                             anchor_x="center")
+            if self.game_mode_flag is False:
                 arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
-                                 self.text_color, 18, anchor_x="center")
-            else:
-                arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
-                                 self.text_color, 18, anchor_x="center")
+                             self.text_color, 18, anchor_x="center")
+        elif self.winning_status is False and self.game_mode_flag is False: #in vegas
+            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                             self.text_color, 18, anchor_x="center")
 
     def display_theme_title(self):
 
