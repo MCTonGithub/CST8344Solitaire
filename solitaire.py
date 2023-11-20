@@ -76,7 +76,7 @@ class Solitaire(arcade.Window):
     def __init__(self):
         super().__init__(WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_TITLE)
         # initialize score
-        self.score = 1000
+        self.score = -52
         # winning status
         self.winning_status  = False
 
@@ -282,8 +282,7 @@ class Solitaire(arcade.Window):
             if (first_clicked - self.threshold_to_meet) <= 0.6:
                 self.click_count += 1  # increment click count again
                 if self.click_count == 2:
-                    if primary_card == self.piles[pile_index][
-                        -1]:  # Check if the double-clicked card is the top card in the pile
+                    if primary_card == self.piles[pile_index][-1]:  # Check if the double-clicked card is the top card in the pile
                         self.move_card_to_foundation(primary_card)  # Sends card to the location
                         if self.game_mode_flag == False:
                             self.show_talon_cards()
@@ -416,12 +415,15 @@ class Solitaire(arcade.Window):
         for pile_index in range(FOUNDATION_PILE_1, FOUNDATION_PILE_4 + 1):
             target_pile = self.piles[pile_index]  # Destination of the card
 
+
             if card_value == 1:  # If it's an Ace
                 if len(target_pile) == 0:  # If foundation is empty
                     primary_card.position = self.pile_mat_list[
                         pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                     self.move_card_to_new_pile(primary_card, pile_index)
+                    self.score += 5
                     return True  # Card successfully moved to the foundation pile
+
             else:
                 if len(target_pile) > 0:  # Foundation pile is not empty, then card can be stacked
                     top_card = target_pile[
@@ -431,7 +433,9 @@ class Solitaire(arcade.Window):
                         primary_card.position = self.pile_mat_list[
                             pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                         self.move_card_to_new_pile(primary_card, pile_index)
+                        self.score += 5
                         return True  # Card successfully moved to the foundation pile
+
         return False
 
     def remove_card_from_pile(self, card):
@@ -489,12 +493,13 @@ class Solitaire(arcade.Window):
                 target_pile = self.piles[pile_index]
 
                 reset_position = self.move_to_foundation_pile(pile, pile_index, reset_position, target_pile)
+                self.score += 5
 
             if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
                 # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
                 self.show_talon_cards()
 
-            self.score -= 1
+
         if reset_position:
             #            # Where-ever we were dropped, it wasn't valid. Reset the each card's position
             #            # to its original spot.
@@ -586,12 +591,13 @@ class Solitaire(arcade.Window):
         """ User presses key """
         if symbol == arcade.key.R:
             # Restart
+            self.score = -52
             self.setup()
         elif symbol == arcade.key.S:
             # Switch game mode
             self.setup()
             self.game_mode_flag = not self.game_mode_flag
-            self.score = 1000
+            self.score = -52
         elif symbol == arcade.key.W:
             # fast win
             self.winning_status = True
