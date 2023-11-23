@@ -81,7 +81,7 @@ class Solitaire(arcade.Window):
         self.winning_status  = False
 
         # all theme setting
-        self.theme_setting = [{"background": arcade.load_texture("C:/Users/matth/Downloads/artworks-000672876424-5wl11j-t500x500.jpg"), "text": arcade.color.BLUE,
+        self.theme_setting = [{"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.BLUE,
              "mat": (128, 0, 128, 128), "title": "Padoru Padoru", "reference": "https://soundcloud.com/999550/christmas-song-by-st-music-feat-6a3yka-padoru-padoru-rus-cover-jingle-bells"}, #don't forget to remove this
             {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
              "mat": (255, 0, 0, 128), "title": "Canada Day", "reference": "Red Maple Leaves on White Background, by Anna Nekrashevich,url: https://www.pexels.com/photo/red-maple-leaves-on-white-background-7144752/"},
