@@ -447,8 +447,9 @@ class Solitaire(arcade.Window):
                     primary_card.position = self.pile_mat_list[
                         pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                     self.move_card_to_new_pile(primary_card, pile_index)
-                    if self.game_mode_flag is False:
+                    if self.game_mode_flag is False and primary_card.get_was_at_foundation_once() is False:
                         self.score += 5
+                        primary_card.set_was_at_foundation_once(True)
                     return True  # Card successfully moved to the foundation pile
 
             else:
@@ -460,8 +461,9 @@ class Solitaire(arcade.Window):
                         primary_card.position = self.pile_mat_list[
                             pile_index].position  # Matches the pos of card and foundation (move card to foundation)
                         self.move_card_to_new_pile(primary_card, pile_index)
-                        if self.game_mode_flag is False:
+                        if self.game_mode_flag is False and primary_card.get_was_at_foundation_once() is False:
                             self.score += 5
+                            primary_card.set_was_at_foundation_once(True)
                         return True  # Card successfully moved to the foundation pile
 
         return False
@@ -519,8 +521,7 @@ class Solitaire(arcade.Window):
                 target_pile = self.piles[pile_index]
 
                 reset_position = self.move_to_foundation_pile(pile, pile_index, reset_position, target_pile)
-                if self.game_mode_flag is False:
-                    self.score += 5
+
 
             # if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
             #     # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
@@ -578,6 +579,12 @@ class Solitaire(arcade.Window):
                     for card in self.held_cards:
                         self.move_card_to_new_pile(card, pile_index)
                     reset_position = False
+                    if self.game_mode_flag is False and self.held_cards[0].get_was_at_foundation_once() is False:
+                        self.score += 5
+                        self.held_cards[0].set_was_at_foundation_once(True)
+
+
+
         else:
             # If the target pile is not empty, check if the card's value is one greater than the top card's value
             top_card = target_pile[-1]
@@ -593,6 +600,9 @@ class Solitaire(arcade.Window):
                     for card in self.held_cards:
                         self.move_card_to_new_pile(card, pile_index)
                     reset_position = False
+                    if self.game_mode_flag is False and self.held_cards[0].get_was_at_foundation_once() is False:
+                        self.score += 5
+                        self.held_cards[0].set_was_at_foundation_once(True)
         return reset_position
 
     def move_to_empty_pile(self, pile, pile_index, reset_position):
@@ -650,7 +660,6 @@ class Solitaire(arcade.Window):
         elif symbol == arcade.key.K and self.game_mode_flag is False and self.winning_status is True: #new vegas game after winning
             if self.cumulative_option is True:
                 self.score -= 52  # saves score and adds the previous one
-
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""

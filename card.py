@@ -11,6 +11,8 @@ class Card(arcade.Sprite):
         # Attributes for suit and value
         self.suit = suit
         self.value = value
+        #to keep track of the card if it has been on the foundation pile once
+        self.was_at_foundation_once = False
 
         # Image to use for the sprite when face up
         self.image_file_name = f":resources:images/cards/card{self.suit}{self.value}.png"
@@ -51,3 +53,9 @@ class Card(arcade.Sprite):
      # get suit
     def get_suit(self):
         return self.suit
+
+    def set_was_at_foundation_once(self, was_at_foundation_once):
+        self.was_at_foundation_once = was_at_foundation_once
+
+    def get_was_at_foundation_once(self):
+        return self.was_at_foundation_once
