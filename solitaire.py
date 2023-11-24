@@ -81,9 +81,11 @@ class Solitaire(arcade.Window):
         self.winning_status  = False
 
         # all theme setting
-        self.theme_setting = [{"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.BLUE,
-             "mat": (128, 0, 128, 128), "title": "Padoru Padoru", "reference": "https://soundcloud.com/999550/christmas-song-by-st-music-feat-6a3yka-padoru-padoru-rus-cover-jingle-bells"}, #don't forget to remove this
-            {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
+        # padoru mode for matthew{"background": arcade.load_texture("C:/Users/matth/Downloads/artworks-000672876424-5wl11j-t500x500.jpg"),
+        #  "text": arcade.color.BLUE,
+        #  "mat": (128, 0, 128, 128), "title": "Padoru Padoru",
+        #  "reference": "https://soundcloud.com/999550/christmas-song-by-st-music-feat-6a3yka-padoru-padoru-rus-cover-jingle-bells"}
+        self.theme_setting = [{"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
              "mat": (255, 0, 0, 128), "title": "Canada Day", "reference": "Red Maple Leaves on White Background, by Anna Nekrashevich,url: https://www.pexels.com/photo/red-maple-leaves-on-white-background-7144752/"},
             {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.ROSE,
              "mat": (255, 0, 127, 128), "title": "Christmas", "reference": "Christmas Board Decors, by George Dolgikh, url: https://www.pexels.com/photo/christmas-board-decors-1303098/"},
@@ -628,9 +630,7 @@ class Solitaire(arcade.Window):
         """ User presses key """
         if symbol == arcade.key.R:
             # Restart
-            self.score = -52 #restarts the score
-            if self.cumulative_option is True and self.game_mode_flag is False: #activate cumulative_option
-                self.cumulative_option = False
+            self.score = -52 #restarts the scorec
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
