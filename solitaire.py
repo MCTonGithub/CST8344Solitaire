@@ -305,7 +305,7 @@ class Solitaire(arcade.Window):
                 if self.click_count == 2:
                     if primary_card == self.piles[pile_index][-1]:  # Check if the double-clicked card is the top card in the pile
                         self.move_card_to_foundation(primary_card)  # Sends card to the location
-                        if self.game_mode_flag is False:
+                        if self.game_mode_flag is False and self.draw3_option is True:
                             self.show_talon_cards()
                     self.click_count = 0  # reset the count
             else:
@@ -533,9 +533,9 @@ class Solitaire(arcade.Window):
                 reset_position = self.move_to_foundation_pile(pile, pile_index, reset_position, target_pile)
 
 
-            if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False:
+            if not reset_position and card_orignal_from == TALON_PILE and self.game_mode_flag == False and self.draw3_option is True:
                  # Show 3 Talon cards if cards were successfully moved and the source pile was Talon
-                self.show_talon_cards()
+                 self.show_talon_cards()
 
 
         if reset_position:
