@@ -665,7 +665,7 @@ class Solitaire(arcade.Window):
             if self.cumulative_option is True:
                 self.score -= 52  # saves score and adds the previous one
             else:
-                self.score = 52
+                self.score = -52
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
