@@ -85,7 +85,10 @@ class Solitaire(arcade.Window):
         #  "text": arcade.color.BLUE,
         #  "mat": (128, 0, 128, 128), "title": "Padoru Padoru",
         #  "reference": "https://soundcloud.com/999550/christmas-song-by-st-music-feat-6a3yka-padoru-padoru-rus-cover-jingle-bells"}
-        self.theme_setting = [{"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
+        self.theme_setting = [
+            {"text": arcade.color.WHITE,
+             "mat": (143, 188, 143, 200), "title": "plain"},
+            {"background": arcade.load_texture("theme_photos/CanadaDay.jpg"), "text": arcade.color.RED,
              "mat": (255, 0, 0, 128), "title": "Canada Day", "reference": "Red Maple Leaves on White Background, by Anna Nekrashevich,url: https://www.pexels.com/photo/red-maple-leaves-on-white-background-7144752/"},
             {"background": arcade.load_texture("theme_photos/Christmas.jpg"), "text": arcade.color.ROSE,
              "mat": (255, 0, 127, 128), "title": "Christmas", "reference": "Christmas Board Decors, by George Dolgikh, url: https://www.pexels.com/photo/christmas-board-decors-1303098/"},
@@ -136,11 +139,14 @@ class Solitaire(arcade.Window):
     def set_theme(self):
 
         theme = self.theme_setting[self.current_theme_index]
-        self.background = theme["background"]
+
         self.text_color = theme["text"]
         self.mat_color = theme["mat"]
-        self.reference = theme["reference"]
+
         self.title = theme["title"]
+        if self.title != "plain":
+            self.reference = theme["reference"]
+            self.background = theme["background"]
 
 
 
@@ -237,10 +243,11 @@ class Solitaire(arcade.Window):
         # Clear the screen
         self.clear()
 
-        arcade.draw_texture_rectangle(
-            self.width // 2, self.height // 2,
-            self.width, self.height, self.background
-        )
+        if self.title != "plain":
+            arcade.draw_texture_rectangle(
+                self.width // 2, self.height // 2,
+                self.width, self.height, self.background
+            )
 
         # Set mat colors
         self.set_mat_color()
@@ -256,7 +263,8 @@ class Solitaire(arcade.Window):
         # display theme title
         self.display_theme_title()
         # display reference of photo
-        self.display_reference()
+        if self.title != "plain":
+            self.display_reference()
 
     def set_mat_color(self):
         for i in range(len(self.pile_mat_list)):
@@ -682,10 +690,10 @@ class Solitaire(arcade.Window):
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
             self.setup()
-        elif symbol == arcade.key.T:
-            # switch theme
-            self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
-            self.set_theme()
+        # elif symbol == arcade.key.T:
+        #     # switch theme
+        #     self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
+        #     self.set_theme()
 
 
 
@@ -725,10 +733,10 @@ class Solitaire(arcade.Window):
             arcade.draw_text("You Win!", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 -30, self.text_color, 36,
                              anchor_x="center")
             if self.game_mode_flag is False:
-                arcade.draw_text(f"Your Final Score: ${self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+                arcade.draw_text(f"Your Final Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
                              self.text_color, 18, anchor_x="center")
         elif self.winning_status is False and self.game_mode_flag is False: #in vegas
-            arcade.draw_text(f"Your Current Score: ${self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
+            arcade.draw_text(f"Your Current Score: {self.score}", WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 150,
                              self.text_color, 18, anchor_x="center")
 
     def display_theme_title(self):
