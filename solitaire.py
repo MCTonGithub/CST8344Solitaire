@@ -690,10 +690,10 @@ class Solitaire(arcade.Window):
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
             self.setup()
-        # elif symbol == arcade.key.T:
-        #     # switch theme
-        #     self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
-        #     self.set_theme()
+        elif symbol == arcade.key.T:
+            # switch theme
+            self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
+            self.set_theme()
 
 
 
