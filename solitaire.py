@@ -6,69 +6,7 @@ import time  # for tracking time span when double-clicking a card
 
 from card import Card
 
-WINDOW_WIDTH = 1024
-WINDOW_HEIGHT = int(WINDOW_WIDTH * 0.75)
-SCREEN_TITLE = "Solitaire"
 
-# sizing
-CARD_SCALE = 0.55
-
-# size of cards
-CARD_WIDTH = int(135 * CARD_SCALE)
-CARD_HEIGHT = int(180 * CARD_SCALE)
-
-# size of mat
-MAT_PERCENT_OVERSIZE = 1.23
-MAT_HEIGHT = int(CARD_HEIGHT * MAT_PERCENT_OVERSIZE)
-MAT_WIDTH = int(CARD_WIDTH * MAT_PERCENT_OVERSIZE)
-
-# Space between mats
-VERTICAL_MARGIN_PERCENT = 0.10
-HORIZONTAL_MARGIN_PERCENT = 0.10
-
-# Top of the page but on the Y axe
-TOP_Y = WINDOW_HEIGHT - MAT_HEIGHT / 2 - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
-
-# Middle of the page but on the Y axe
-MIDDLE_Y = TOP_Y - MAT_HEIGHT - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
-
-# Bottom of the page but on the Y axe
-BOTTOM_Y = MAT_HEIGHT / 2 + MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
-
-# Left of the page but on the X axe
-LEFT_X = MAT_WIDTH / 2 + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
-
-# Middle of the page but on the X axe
-MIDDLE_X = WINDOW_WIDTH / 4
-
-# Right of the page but on the X axe
-RIGHT_X = WINDOW_WIDTH - MAT_WIDTH / 2 - MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
-
-# How far apart each pile goes
-X_SPACING = MAT_WIDTH + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
-
-# Card
-CARD_VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-CARD_SUITS = ["Clubs", "Hearts", "Spades", "Diamonds"]
-
-# If we fan out cards stacked on each other, how far apart to fan them?
-CARD_VERTICAL_OFFSET = int(CARD_HEIGHT * CARD_SCALE * 0.4)
-
-# Constant for piles
-PILE_COUNT = 13
-STOCK_PILE = 0
-TALON_PILE = 1
-TABLEAU_PILE_1 = 2
-TABLEAU_PILE_2 = 3
-TABLEAU_PILE_3 = 4
-TABLEAU_PILE_4 = 5
-TABLEAU_PILE_5 = 6
-TABLEAU_PILE_6 = 7
-TABLEAU_PILE_7 = 8
-FOUNDATION_PILE_1 = 9
-FOUNDATION_PILE_2 = 10
-FOUNDATION_PILE_3 = 11
-FOUNDATION_PILE_4 = 12
 
 
 class Solitaire(arcade.Window):
@@ -151,7 +89,7 @@ class Solitaire(arcade.Window):
 
 
 
-    def setup(self):
+    def new_game_setup(self):
         """ Set up the game here. Call this function to restart the game. """
 
         # Cards that we are dragging
@@ -266,6 +204,9 @@ class Solitaire(arcade.Window):
         if self.title != "plain":
             self.display_reference()
 
+        #display legend
+        self.display_legend()
+
     def set_mat_color(self):
         for i in range(len(self.pile_mat_list)):
             pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, self.mat_color)
@@ -315,15 +256,15 @@ class Solitaire(arcade.Window):
             # standard rule
             if self.game_mode_flag and pile_index == STOCK_PILE:
                 # Check if there are cards in the Stock Pile
-                self.show_1_talon_card()
+                self.get_1_talon_card()
 
             # Vegas rule
             # If we click on the stock, 3 cards move to the talon pile
             elif not self.game_mode_flag and pile_index == STOCK_PILE:
                 if self.draw3_option is True:  # if it's in vegas mode and draw3_option is True
-                    self.show_3_talon_cards()
+                    self.get_3_talon_cards()
                 else: #draw3_option is False
-                    self.show_1_talon_card()
+                    self.get_1_talon_card()
 
             elif primary_card.is_face_down():
                 primary_card.face_up()
@@ -391,7 +332,7 @@ class Solitaire(arcade.Window):
                         self.piles[STOCK_PILE].append(card)
                         card.position = self.pile_mat_list[STOCK_PILE].position
 
-    def show_1_talon_card(self):
+    def get_1_talon_card(self):
         if len(self.piles[STOCK_PILE]) > 0:
             # Flip the top card from the Stock Pile to the Talon Pile
             card = self.piles[STOCK_PILE][-1]
@@ -411,7 +352,7 @@ class Solitaire(arcade.Window):
                         self.pile_mat_list[TALON_PILE].position[1]
                     )
 
-    def show_3_talon_cards(self):
+    def get_3_talon_cards(self):
         """Flip the 3 new cards"""
         if self.draw3_option is True:
             for i in range(3):
@@ -646,7 +587,7 @@ class Solitaire(arcade.Window):
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
-            self.setup()
+            self.new_game_setup()
         elif symbol == arcade.key.S:
             # Switch game mode
             self.cumulative_option_txt = ""
@@ -657,7 +598,7 @@ class Solitaire(arcade.Window):
                 self.score = -52 #resets the score is C is not on and in vegas mode
             if self.winning_status:
                 self.winning_status = False
-            self.setup()
+            self.new_game_setup()
             self.game_mode_flag = not self.game_mode_flag
         elif symbol == arcade.key.O and self.game_mode_flag is False: #should be in vegas mode
             if self.draw3_option is False: #activate draw3_option
@@ -677,10 +618,10 @@ class Solitaire(arcade.Window):
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
-            self.setup()
-        elif symbol == arcade.key.W:
-            # fast win
-            self.winning_status = True
+            self.new_game_setup()
+        # elif symbol == arcade.key.W:
+        #     # fast win
+        #     self.winning_status = True
         elif symbol == arcade.key.N and self.game_mode_flag is False and self.winning_status is False: #a new game of vegas mode in vegas mode or refreshes vegas mode
             if self.cumulative_option is True:
                 self.score -= 52  # saves score and adds the previous one
@@ -689,7 +630,7 @@ class Solitaire(arcade.Window):
             self.winning_status = False
             self.cumulative_option_txt = ""
             self.draw3_option_txt = ""
-            self.setup()
+            self.new_game_setup()
         elif symbol == arcade.key.T:
             # switch theme
             self.current_theme_index = (self.current_theme_index + 1) % len(self.theme_setting)
@@ -759,16 +700,101 @@ class Solitaire(arcade.Window):
                          anchor_x="left")
         arcade.draw_text( f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt} {self.draw3_option_txt}", 5, 40, self.text_color, 25,
                          anchor_x="left")
+
+    def display_legend(self):
+
+
+        self.legend_txt = "Legend of Shortcut Key: \n" \
+                            "R key: Restart a new game at classic mode \n" \
+                            "T key: Switch Theme \n" \
+                            "S key: Switch Game Mode: Classic / Vegas \n" \
+                            "N key: Give up and Start Over  (Vegas mode only) \n" \
+                            "O key: Draw 3 ON/OFF (Vegas mode only) \n" \
+                            "C key: Cumulative ON/OFF (Vegas mode only) \n" \
+                            "K key: Restart a new game after winning (Cumulative ON only)\n"
+        # arcade.draw_text doesn't support \n for new line
+        self.legend_lines = self.legend_txt.split("\n")
+
+        self.lengend_line_counter = 1;
+        for  self.legend_line in self.legend_lines:
+
+            # 370, 230 are the position of the legend
+            arcade.draw_text( f"{self.legend_line}", 370, (230 - self.lengend_line_counter * 15), self.text_color, 10,
+                             anchor_x="left")
+            self.lengend_line_counter += 1
+
+
+
+        # arcade.draw_text(f"{self.cumulative_option_txt}", 5, 75, self.text_color, 25,
+        #                  anchor_x="left")
+        # arcade.draw_text(f"Theme: {self.title}, Game Mode: {self.game_mode_flag_txt} {self.draw3_option_txt}", 5,
+        #                  40, self.text_color, 25,
+        #                  anchor_x="left")
     def display_reference(self):
 
         arcade.draw_text( self.reference, 5, 2, arcade.color.BLUE, 10,
                          anchor_x="left")
 
 
+def table_setup():
+    global WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_TITLE, CARD_SCALE, MAT_HEIGHT, MAT_WIDTH, TOP_Y, MIDDLE_Y, LEFT_X, MIDDLE_X, RIGHT_X, X_SPACING, CARD_VALUES, CARD_SUITS, CARD_VERTICAL_OFFSET, PILE_COUNT, STOCK_PILE, TALON_PILE, TABLEAU_PILE_1, TABLEAU_PILE_7, FOUNDATION_PILE_1, FOUNDATION_PILE_4
+    WINDOW_WIDTH = 1024
+    WINDOW_HEIGHT = int(WINDOW_WIDTH * 0.75)
+    SCREEN_TITLE = "Solitaire"
+    # sizing
+    CARD_SCALE = 0.55
+    # size of cards
+    CARD_WIDTH = int(135 * CARD_SCALE)
+    CARD_HEIGHT = int(180 * CARD_SCALE)
+    # size of mat
+    MAT_PERCENT_OVERSIZE = 1.23
+    MAT_HEIGHT = int(CARD_HEIGHT * MAT_PERCENT_OVERSIZE)
+    MAT_WIDTH = int(CARD_WIDTH * MAT_PERCENT_OVERSIZE)
+    # Space between mats
+    VERTICAL_MARGIN_PERCENT = 0.10
+    HORIZONTAL_MARGIN_PERCENT = 0.10
+    # Top of the page but on the Y axe
+    TOP_Y = WINDOW_HEIGHT - MAT_HEIGHT / 2 - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
+    # Middle of the page but on the Y axe
+    MIDDLE_Y = TOP_Y - MAT_HEIGHT - MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
+    # Bottom of the page but on the Y axe
+    BOTTOM_Y = MAT_HEIGHT / 2 + MAT_HEIGHT * VERTICAL_MARGIN_PERCENT
+    # Left of the page but on the X axe
+    LEFT_X = MAT_WIDTH / 2 + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
+    # Middle of the page but on the X axe
+    MIDDLE_X = WINDOW_WIDTH / 4
+    # Right of the page but on the X axe
+    RIGHT_X = WINDOW_WIDTH - MAT_WIDTH / 2 - MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
+    # How far apart each pile goes
+    X_SPACING = MAT_WIDTH + MAT_WIDTH * HORIZONTAL_MARGIN_PERCENT
+    # Card
+    CARD_VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+    CARD_SUITS = ["Clubs", "Hearts", "Spades", "Diamonds"]
+    # If we fan out cards stacked on each other, how far apart to fan them?
+    CARD_VERTICAL_OFFSET = int(CARD_HEIGHT * CARD_SCALE * 0.4)
+    # Constant for piles
+    PILE_COUNT = 13
+    STOCK_PILE = 0
+    TALON_PILE = 1
+    TABLEAU_PILE_1 = 2
+    TABLEAU_PILE_2 = 3
+    TABLEAU_PILE_3 = 4
+    TABLEAU_PILE_4 = 5
+    TABLEAU_PILE_5 = 6
+    TABLEAU_PILE_6 = 7
+    TABLEAU_PILE_7 = 8
+    FOUNDATION_PILE_1 = 9
+    FOUNDATION_PILE_2 = 10
+    FOUNDATION_PILE_3 = 11
+    FOUNDATION_PILE_4 = 12
+
+
+table_setup()
+
 def main():
     """ Main function """
     window = Solitaire()
-    window.setup()
+    window.new_game_setup()
     arcade.run()
 
 
