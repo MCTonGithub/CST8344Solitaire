@@ -719,7 +719,7 @@ class Solitaire(arcade.Window):
         for  self.legend_line in self.legend_lines:
 
             # 370, 230 are the position of the legend
-            arcade.draw_text( f"{self.legend_line}", 370, (230 - self.lengend_line_counter * 15), self.text_color, 10,
+            arcade.draw_text( f"{self.legend_line}", 160, (330 - self.lengend_line_counter * 15), self.text_color, 10,
                              anchor_x="left")
             self.lengend_line_counter += 1
 
